@@ -16,7 +16,6 @@ public class Compilador {
      */
     public static void main(String[] args) {
         System.out.println(">> Iniciando compilador");
-        AnalisadorLexico.start();
         System.out.println(">> Análise léxixa concluída");
     }
 

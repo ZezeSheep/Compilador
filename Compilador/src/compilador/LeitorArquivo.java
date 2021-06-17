@@ -30,16 +30,20 @@ public class LeitorArquivo {
         this._arquivo = _arquivo;      
     }
 
-    public LeitorArquivo(String arquivo) throws FileNotFoundException {
+    public LeitorArquivo(String arquivo){
         this._arquivo = arquivo;        
-        _fileStream = new FileInputStream(this._arquivo);
+        try {
+			_fileStream = new FileInputStream(this._arquivo);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
         System.out.println("Nome lido é "+_arquivo);
         _streamReader = new InputStreamReader(_fileStream);
     }
     
-    public int getChar(){
+    public char getChar(){
         try {
-            return _streamReader.read();
+            return (char) _streamReader.read();
         } catch (IOException ex) {
             Logger.getLogger(LeitorArquivo.class.getName()).log(Level.SEVERE, null, ex);
         }

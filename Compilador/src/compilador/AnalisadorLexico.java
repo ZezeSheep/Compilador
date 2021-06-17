@@ -7,6 +7,7 @@ package compilador;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Scanner;
 
@@ -15,65 +16,87 @@ import java.util.Scanner;
  * @author rapha
  */
 public class AnalisadorLexico {
-    
-    private List _delimiters = new ArrayList();
 
-    public AnalisadorLexico() {
-        _delimiters.add(" ");
-        _delimiters.add("   ");
-        _delimiters.add(',');
-        _delimiters.add(';');
-        _delimiters.add('+');
-        _delimiters.add('-');
-        _delimiters.add('*');
-        _delimiters.add('/');
-        _delimiters.add('%');
-        _delimiters.add('>');
-        _delimiters.add('<');
-        _delimiters.add('=');
-        _delimiters.add('!');
-        _delimiters.add('&');
-        _delimiters.add('|');
-        _delimiters.add('(');
-        _delimiters.add(')');
-        _delimiters.add('{');
-        _delimiters.add('}');
-        _delimiters.add('\"');
-        _delimiters.add('\'');
-    }
-    
-    public static void start(){
-        LeitorArquivo leitorArquivo;
-        Scanner scanner = new Scanner(System.in);
+	private Hashtable palavras;
+	private LeitorArquivo leitorArquivo;
+	private char caracter;
+	public static int linha = 1;
 
-        //System.out.println(">> Informe o nome do arquivo a ser compilado: ");
-        //String arq = scanner.next();
-        String arq = "teste1.txt";
-        try {
-            leitorArquivo = new LeitorArquivo(arq);
-            int caracter = leitorArquivo.getChar();
-            String token = "";
-            while (caracter != -1) {
-                //System.out.println((char)caracter);
-                if(isDelimiter((char)caracter)){
-                   System.out.println("Token identificado: "+token);
-                   token = "";
-                } else {
-                   token = token + (char)caracter;
-                }
-                caracter = leitorArquivo.getChar();
-            }
-            System.out.println(">> Arquivo lido com sucesso!");
-        } catch (FileNotFoundException ex) {
-            System.out.println("Arquivo " + arq + " Não encontrado");
-            System.exit(400);
-        }
-    }
-    
-    private static boolean isDelimiter(char c){
-        //return _delimiters.contains(c);
-        return c == ' ' || c == ',' || c == ';' || c == '(' || c == ')'
-                || c == '=' || c == '<' || c == '>' || c == '!' || c == '/'
-                || c == '\"';
-    }
+
+	private void reservar(Palavra palavra) {
+		palavras.put(palavra.getLexeme(), palavra);
+	}
+
+	public AnalisadorLexico(String nomeArquivo) {
+		palavras = new Hashtable();   
+		leitorArquivo = new LeitorArquivo(nomeArquivo);		
+		reservar(Palavra.CLASS);
+		reservar(Palavra.IF);
+		reservar(Palavra.ELSE);
+		reservar(Palavra.DO);
+		reservar(Palavra.WHILE);
+		reservar(Palavra.INIT);
+		reservar(Palavra.STOP);
+		reservar(Palavra.READ);
+		reservar(Palavra.INT);
+		reservar(Palavra.STRING);
+		reservar(Palavra.FLOAT);
+	}
+
+	private boolean isDelimiter(char c){
+		//return _delimiters.contains(c);
+		return c == ' ' || c == '\t' || c == '\r' || c == '\b';
+	}
+
+	private void lerCaracter() {
+		caracter = leitorArquivo.getChar();
+	}
+	
+	private boolean verificarProximoCaracter(char c) {
+		lerCaracter();
+		return caracter == c;
+	}
+
+	public Token scan() {
+
+		for(;;lerCaracter()) {
+			if(isDelimiter(caracter)) {
+				continue;
+			}
+			else if(caracter == '\n')
+				linha++;
+			else
+				break;
+		}
+
+		switch(caracter){
+			case '&':
+				if(verificarProximoCaracter('&'))
+					return Palavra.AND;
+				else
+					return new Token('&');
+			case '=':
+				if(verificarProximoCaracter('='))
+					return Palavra.EQ;
+				else
+					return new Token('=');
+			case '!':
+				if(verificarProximoCaracter('='))
+					return Palavra.NE;
+				else
+					return new Token('!');
+			case '>':
+				if(verificarProximoCaracter('='))
+					return Palavra.GE;
+				else
+					return Palavra.GT;
+			case '<':
+				if(verificarProximoCaracter('='))
+					return Palavra.LE;
+				else
+					return Palavra.LT;
+		}
+
+
+	}
 }
