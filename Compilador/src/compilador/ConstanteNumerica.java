@@ -1,10 +1,10 @@
 package compilador;
 
-public class ConstanteNumerica extends Token {
+public class ConstanteNumerica<T> extends Token {
 	
-	private final int value;
+	private final T value;
 	
-	public ConstanteNumerica(int value){
+	public ConstanteNumerica(T value){
 		super(Constantes.NUM);
 		this.value = value;
 	}
@@ -13,7 +13,7 @@ public class ConstanteNumerica extends Token {
 		return "" + value;
 	}
 
-	public int getValue() {
+	public T getValue() {
 		return value;
 	}
 
