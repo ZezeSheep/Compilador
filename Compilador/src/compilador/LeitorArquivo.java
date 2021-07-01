@@ -37,7 +37,6 @@ public class LeitorArquivo {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-        System.out.println("Nome lido é "+_arquivo);
         _streamReader = new InputStreamReader(_fileStream);
     }
     
