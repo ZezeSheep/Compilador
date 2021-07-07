@@ -48,7 +48,7 @@ public class LeitorArquivo {
             Logger.getLogger(LeitorArquivo.class.getName()).log(Level.SEVERE, null, ex);
         }
         if(saida == -1)
-            saida = '\u001a';
+            saida = Constantes.EOF;
         return (char)saida;
     }
 

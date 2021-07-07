@@ -22,6 +22,7 @@ public class AnalisadorLexico {
     private char caracter;
     public static int linha = 1;
     public boolean isEOF;
+    public static boolean error = false;
 
     public Hashtable getPalavras() {
         return palavras;
@@ -64,6 +65,7 @@ public class AnalisadorLexico {
 
     private ConstanteNumerica lerNumero() {
         if (caracter == '0') {
+            caracter = ' ';
             return new ConstanteNumerica(0);
         } else {
             double valor = 0;
@@ -90,17 +92,18 @@ public class AnalisadorLexico {
         }
     }
 
-    private Palavra lerLiteral() {
+    private Palavra lerLiteral() throws LiteralBadFormattedException {
         StringBuffer valorLiteral = new StringBuffer();    
         lerCaracter();
         while (caracter != '"') {
             if(caracter == Constantes.EOF){
-                //lansar a braba
+                throw new LiteralBadFormattedException("String literal sem fecha aspas, verifique sua string!");//lansar a braba
             }
             if (caracter != '\n') {
                 valorLiteral.append(caracter);
             }else{
-                //lansar a braba
+                System.out.println(">>PLIss help");
+                throw new LiteralBadFormattedException("String literal sem fecha aspas, verifique sua string!");//lansar a braba
             }
             lerCaracter();
         }
@@ -133,22 +136,28 @@ public class AnalisadorLexico {
             } else if (caracter == '\n') {
                 linha++;
             } else if (caracter == '/') {
-                if (verificarProximoCaracter('/')) {
+                lerCaracter();
+                if (caracter == '/'){
                     while (caracter != '\n') {
                         lerCaracter();
                     }
                     linha++;
-                } else if (verificarProximoCaracter('*')) {
+                } else if (caracter == '*') {
+                    lerCaracter();
                     while (true) {
-                        lerCaracter();
                         if (caracter == '*') {
                             lerCaracter();
                             if (caracter == '/') {
                                 break;
                             }
-                        } else if (caracter == '\n') {
+                            else if(caracter == '*'){
+                                continue;
+                            }
+                        }
+                        if (caracter == '\n') {
                             linha++;
                         }
+                        lerCaracter();
                     }
                 }
                 else{
@@ -200,7 +209,13 @@ public class AnalisadorLexico {
             return lerNumero();
         }
         if (caracter == '"'){
-           return lerLiteral();
+            try{
+                return lerLiteral();
+            }catch(Exception e){
+                System.err.println("erro léxico linha: " + linha);
+                System.err.println(e);
+                error = true;
+            }
         }
         if (Character.isLetter(caracter)) {
             return lerIdentidicador();
@@ -210,10 +225,4 @@ public class AnalisadorLexico {
         caracter = ' ';
         return token;
     }
-    
-    public boolean isEOF(){
-        System.out.print(caracter);
-        return caracter == '\u001a';  
-    }
-
 }
