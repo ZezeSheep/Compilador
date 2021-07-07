@@ -33,4 +33,5 @@ public class Constantes {
     public final static int AND = 276;
     public final static int OR = 277;
     public final static int LITERAL = 278;
+    public final static char EOF = '\u001a';
 }

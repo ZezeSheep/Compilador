@@ -15,9 +15,15 @@ public class Compilador {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        AnalisadorLexico analizadorLexico = new AnalisadorLexico("teste2.txt");
+        AnalisadorLexico analizadorLexico = new AnalisadorLexico("teste3.txt");
         System.out.println(">> Iniciando compilador");
-        analizadorLexico.scan();
+        Token t;
+        
+        while(!analizadorLexico.isEOF){
+            t = analizadorLexico.scan();
+            System.out.println(t);
+        }
+        
         System.out.println(analizadorLexico.getPalavras().toString());
         System.out.println(">> Análise léxixa concluída");
     }

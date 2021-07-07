@@ -21,6 +21,7 @@ public class AnalisadorLexico {
     private LeitorArquivo leitorArquivo;
     private char caracter;
     public static int linha = 1;
+    public boolean isEOF;
 
     public Hashtable getPalavras() {
         return palavras;
@@ -33,6 +34,8 @@ public class AnalisadorLexico {
     public AnalisadorLexico(String nomeArquivo) {
         palavras = new Hashtable();
         leitorArquivo = new LeitorArquivo(nomeArquivo);
+        caracter = ' ';
+        isEOF = false;
         reservar(Palavra.CLASS);
         reservar(Palavra.IF);
         reservar(Palavra.ELSE);
@@ -51,7 +54,7 @@ public class AnalisadorLexico {
     }
 
     private void lerCaracter() {
-        caracter = leitorArquivo.getChar();
+        caracter = (char)leitorArquivo.getChar();
     }
 
     private boolean verificarProximoCaracter(char c) {
@@ -88,24 +91,21 @@ public class AnalisadorLexico {
     }
 
     private Palavra lerLiteral() {
-        if (verificarProximoCaracter('"') && verificarProximoCaracter('"')) {
-            StringBuffer valorLiteral = new StringBuffer();
+        StringBuffer valorLiteral = new StringBuffer();    
+        lerCaracter();
+        while (caracter != '"') {
+            if(caracter == Constantes.EOF){
+                //lansar a braba
+            }
+            if (caracter != '\n') {
+                valorLiteral.append(caracter);
+            }else{
+                //lansar a braba
+            }
             lerCaracter();
-            while (caracter != '"') {
-                if (caracter != '\n') {
-                    valorLiteral.append(caracter);
-                }
-                lerCaracter();
-            }
-            if (verificarProximoCaracter('"') && verificarProximoCaracter('"')) {
-                String s = valorLiteral.toString();
-                return new Palavra(s, Constantes.LITERAL);
-            } else {
-                return null; //literal nn segue regra """nsdvjnsdvjin"""
-            }
-        } else {
-            return null; //literal nn segue regra """nsdvjnsdvjin"""
         }
+        caracter = ' ';
+        return new Palavra(valorLiteral.toString(), Constantes.LITERAL);
     }
 
     private Token lerIdentidicador() { //esse metodo precisa ser alterado
@@ -125,18 +125,45 @@ public class AnalisadorLexico {
     }
 
     public Token scan() {
-
+        //System.out.println(">> Entrou scan...");
         for (;; lerCaracter()) {
+            //System.out.println(">>dentro for");
             if (isDelimiter(caracter)) {
                 continue;
             } else if (caracter == '\n') {
                 linha++;
-            } else {
+            } else if (caracter == '/') {
+                if (verificarProximoCaracter('/')) {
+                    while (caracter != '\n') {
+                        lerCaracter();
+                    }
+                    linha++;
+                } else if (verificarProximoCaracter('*')) {
+                    while (true) {
+                        lerCaracter();
+                        if (caracter == '*') {
+                            lerCaracter();
+                            if (caracter == '/') {
+                                break;
+                            }
+                        } else if (caracter == '\n') {
+                            linha++;
+                        }
+                    }
+                }
+                else{
+                    return new Token('/');
+                }
+            } 
+            else {
                 break;
             }
         }
-
+        
         switch (caracter) {
+            case Constantes.EOF:
+                isEOF = true;
+                break;
             case '&':
                 if (verificarProximoCaracter('&')) {
                     return Palavra.AND;
@@ -172,18 +199,21 @@ public class AnalisadorLexico {
         if (Character.isDigit(caracter)) {
             return lerNumero();
         }
-
-        if (caracter == '"') {// eh um literal
-            return lerLiteral();
+        if (caracter == '"'){
+           return lerLiteral();
         }
-
         if (Character.isLetter(caracter)) {
             return lerIdentidicador();
         }
-
+        
         Token token = new Token(caracter);
         caracter = ' ';
         return token;
+    }
+    
+    public boolean isEOF(){
+        System.out.print(caracter);
+        return caracter == '\u001a';  
     }
 
 }

@@ -1,7 +1,7 @@
 class Teste1
 int a,b,c; 
 float result;
-
+// comentario
 init
 write("Digite o valor de a:");
 read (a);

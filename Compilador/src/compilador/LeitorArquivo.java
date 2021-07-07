@@ -41,12 +41,15 @@ public class LeitorArquivo {
     }
     
     public char getChar(){
+        int saida = -1;
         try {
-            return (char) _streamReader.read();
-        } catch (IOException ex) {
+            saida = _streamReader.read();
+        }catch (IOException ex) {
             Logger.getLogger(LeitorArquivo.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return 0;
+        if(saida == -1)
+            saida = '\u001a';
+        return (char)saida;
     }
 
 
