@@ -144,20 +144,32 @@ public class AnalisadorLexico {
                     linha++;
                 } else if (caracter == '*') {
                     lerCaracter();
-                    while (true) {
-                        if (caracter == '*') {
+                    try{
+                        while (true) {
+                            if (caracter == '*') {
+                                lerCaracter();
+                                if (caracter == '/') {
+                                    break;
+                                }
+                                else if(caracter == '*'){
+                                    continue;
+                                }
+                            }
+                            if (caracter == '\n') {
+                                linha++;
+                            }
+                            else if(caracter == Constantes.EOF){
+                                    System.out.println(">>chegou no exception");
+                                    throw new Exception("Comentario aberto");
+                            }
                             lerCaracter();
-                            if (caracter == '/') {
-                                break;
-                            }
-                            else if(caracter == '*'){
-                                continue;
-                            }
                         }
-                        if (caracter == '\n') {
-                            linha++;
-                        }
-                        lerCaracter();
+                    }catch(Exception e){
+                        System.err.println("erro léxico linha: " + linha);
+                        System.err.println(e);
+                        error = true;
+                        isEOF = true;
+                        break;
                     }
                 }
                 else{
