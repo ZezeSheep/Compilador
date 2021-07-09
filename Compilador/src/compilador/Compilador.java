@@ -20,7 +20,7 @@ public class Compilador {
         
         System.out.println(">> Iniciando compilador");
         Token t;
-        System.out.println(">>\t Iniciando análise léxica");
+        System.out.println(">>\t Iniciando analise lexica");
         System.out.println(">>\t Fluxo de tokens:");
         while(!analizadorLexico.isEOF){
             t = analizadorLexico.scan();
@@ -37,14 +37,14 @@ public class Compilador {
         System.out.println(">>\t Fim do fluxo de tokens");
         System.out.println(">>\t Tabela de símbolos incompleta:");
         tabelaSimbolos.printTable(2);
-        System.out.println(">>\t Análise léxica concluída");
+        System.out.println(">>\t Analise lexica concluida");
         if(analizadorLexico.error){
                 System.out.println(">>\t com erro.");
                 for(String s: analizadorLexico.getErros()){
                     System.out.println("**\t\t" + s);
                 }
         }
-        System.out.println(">> Compilação concluída");
+        System.out.println(">> Compilacao concluida");
     }
 
 }
