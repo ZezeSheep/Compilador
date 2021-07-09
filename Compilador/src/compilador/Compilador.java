@@ -15,7 +15,7 @@ public class Compilador {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        AnalisadorLexico analizadorLexico = new AnalisadorLexico("teste2.txt");
+        AnalisadorLexico analizadorLexico = new AnalisadorLexico(args[0]);
         Ambiente tabelaSimbolos = new Ambiente(null);
         
         System.out.println(">> Iniciando compilador");
