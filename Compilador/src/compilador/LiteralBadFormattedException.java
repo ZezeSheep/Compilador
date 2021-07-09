@@ -2,9 +2,8 @@ package compilador;
 
 public class LiteralBadFormattedException extends Exception {
 	/**
-     * importante caso a exceção seja serializada
+     * importante caso a exceï¿½ï¿½o seja serializada
      */
-    private static final long serialVersionUID = 1149241010009861914L;
 
     public LiteralBadFormattedException(String msg){
         super(msg);
