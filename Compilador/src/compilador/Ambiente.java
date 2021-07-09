@@ -38,10 +38,15 @@ public class Ambiente {
 		else
 			return null;
 	}
-        public void printTable(){
+        public void printTable(int tabs){
             Ambiente ambiente;
             for(ambiente = this; ambiente!=null; ambiente=ambiente.ambienteAnterior)
-                System.out.println(ambiente.simbolos);
+                for(Map.Entry<Token, Identificador> entry : ambiente.simbolos.entrySet()){
+                    for(int i = tabs;i>0;i--)
+                        System.out.print("\t");
+                    System.out.println(entry.getKey()+" : "+entry.getValue());
+                }
+                
         }
 	
 

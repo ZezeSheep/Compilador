@@ -16,6 +16,8 @@ import java.util.Scanner;
  * @author rapha
  */
 public class AnalisadorLexico {
+    
+    private ArrayList<String> Erros;
 
     private Hashtable palavras;
     private LeitorArquivo leitorArquivo;
@@ -27,14 +29,22 @@ public class AnalisadorLexico {
     public Hashtable getPalavras() {
         return palavras;
     }
-
+    public ArrayList<String> getErros() {
+        return Erros;
+    }
     private void reservar(Palavra palavra) {
         palavras.put(palavra.getLexeme(), palavra);
     }
-
+    private void AddError(Exception e){
+        Erros.add("erro léxico linha: " + linha);
+        Erros.add(e.toString());
+        error = true;
+    }
+    
     public AnalisadorLexico(String nomeArquivo) {
         palavras = new Hashtable();
         leitorArquivo = new LeitorArquivo(nomeArquivo);
+        Erros = new ArrayList<String>();
         caracter = ' ';
         isEOF = false;
         reservar(Palavra.CLASS);
@@ -172,9 +182,7 @@ public class AnalisadorLexico {
                             lerCaracter();
                         }
                     }catch(Exception e){
-                        System.err.println("erro léxico linha: " + linha);
-                        System.err.println(e);
-                        error = true;
+                        AddError(e);
                         isEOF = true;
                         break;
                     }
@@ -228,18 +236,14 @@ public class AnalisadorLexico {
             try{
                 return lerNumero();
             }catch(Exception e){
-                System.err.println("erro léxico linha: " + linha);
-                System.err.println(e);
-                error = true;
+                AddError(e);
             }
         }
         if (caracter == '"'){
             try{
                 return lerLiteral();
             }catch(Exception e){
-                System.err.println("erro léxico linha: " + linha);
-                System.err.println(e);
-                error = true;
+                AddError(e); 
             }
         }
         if (Character.isLetter(caracter)) {
