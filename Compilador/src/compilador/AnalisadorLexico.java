@@ -36,7 +36,7 @@ public class AnalisadorLexico {
         palavras.put(palavra.getLexeme(), palavra);
     }
     private void AddError(Exception e){
-        Erros.add("erro léxico linha: " + linha);
+        Erros.add("erro lexico linha: " + linha);
         Erros.add(e.toString());
         error = true;
     }
