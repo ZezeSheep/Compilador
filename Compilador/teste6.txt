@@ -1,0 +1,8 @@
+init
+// Programa personalizado  
+int idade, dobro;
+write("Digite o sua idade: ");
+read(idade);
+dobro = 2 * idade;
+write ("O dobro da sua idade é "+ dobro);
+stop
