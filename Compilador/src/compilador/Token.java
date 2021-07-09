@@ -8,7 +8,10 @@ public class Token {
 	}
 	
 	public String toString(){
-		return "" + tag;
+                if (tag <=255)
+                    return "" + (char)tag;
+                else
+                    return "" + tag;
 	}
 
 	public int getTag() {

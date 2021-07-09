@@ -14,6 +14,7 @@ public class Ambiente {
 	}
 	
 	public void adicionaSimbolo(Token token, Identificador identificador) {
+            if(!this.simbolos.containsKey(token))
 		simbolos.put(token, identificador);
 	}
 	
@@ -21,10 +22,11 @@ public class Ambiente {
 		Ambiente ambiente;
 		for(ambiente = this; ambiente!=null; ambiente=ambiente.ambienteAnterior)
 			if(ambiente.simbolos.containsKey(token))
+
 				return true;
 		return false;
 	}
-	
+        
 	public Identificador getIdentificador(Token token) {
 		if(exists(token)) {
 			Ambiente ambiente;
@@ -36,6 +38,11 @@ public class Ambiente {
 		else
 			return null;
 	}
+        public void printTable(){
+            Ambiente ambiente;
+            for(ambiente = this; ambiente!=null; ambiente=ambiente.ambienteAnterior)
+                System.out.println(ambiente.simbolos);
+        }
 	
 
 }

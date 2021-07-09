@@ -48,6 +48,7 @@ public class AnalisadorLexico {
         reservar(Palavra.INT);
         reservar(Palavra.STRING);
         reservar(Palavra.FLOAT);
+        reservar(Palavra.WRITE);
     }
 
     private boolean isDelimiter(char c) {
@@ -63,7 +64,7 @@ public class AnalisadorLexico {
         return caracter == c;
     }
 
-    private ConstanteNumerica lerNumero() {
+    private ConstanteNumerica lerNumero() throws NumberBadFormattedException {
         if (caracter == '0') {
             caracter = ' ';
             return new ConstanteNumerica(0);
@@ -74,7 +75,11 @@ public class AnalisadorLexico {
                 lerCaracter();
             } while (Character.isDigit(caracter));
             if (caracter != '.') {
-                return new ConstanteNumerica((int) valor); //leu valor inteiro
+                if(!Character.isLetter(caracter))
+                    return new ConstanteNumerica((int) valor); //leu valor inteiro
+                else{
+                    throw new NumberBadFormattedException("Numero mal formatado");
+                }
             } else { //leu valor real
                 lerCaracter();
                 if (Character.isDigit(caracter)) {
@@ -84,9 +89,13 @@ public class AnalisadorLexico {
                         expoente--;
                         lerCaracter();
                     } while (Character.isDigit(caracter));
-                    return new ConstanteNumerica(valor);
+                    if(!Character.isLetter(caracter))
+                        return new ConstanteNumerica(valor);
+                    else{
+                        throw new NumberBadFormattedException("Numero mal formatado");
+                    }
                 } else {  // um erro de sintaxe do tipo EX: 123.a
-                    return null;
+                    throw new NumberBadFormattedException("Numero mal formatado");
                 }
             }
         }
@@ -102,7 +111,6 @@ public class AnalisadorLexico {
             if (caracter != '\n') {
                 valorLiteral.append(caracter);
             }else{
-                System.out.println(">>PLIss help");
                 throw new LiteralBadFormattedException("String literal sem fecha aspas, verifique sua string!");//lansar a braba
             }
             lerCaracter();
@@ -159,7 +167,6 @@ public class AnalisadorLexico {
                                 linha++;
                             }
                             else if(caracter == Constantes.EOF){
-                                    System.out.println(">>chegou no exception");
                                     throw new Exception("Comentario aberto");
                             }
                             lerCaracter();
@@ -218,7 +225,13 @@ public class AnalisadorLexico {
         }
 
         if (Character.isDigit(caracter)) {
-            return lerNumero();
+            try{
+                return lerNumero();
+            }catch(Exception e){
+                System.err.println("erro léxico linha: " + linha);
+                System.err.println(e);
+                error = true;
+            }
         }
         if (caracter == '"'){
             try{
@@ -237,4 +250,5 @@ public class AnalisadorLexico {
         caracter = ' ';
         return token;
     }
+    
 }

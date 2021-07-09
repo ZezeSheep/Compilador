@@ -6,15 +6,13 @@
             <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/PalavraReservada.java</file>
             <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/Constantes.java</file>
             <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/ConstanteNumerica.java</file>
+            <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/Identificador.java</file>
             <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/Ambiente.java</file>
             <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/Compilador.java</file>
             <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/Variavel.java</file>
+            <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/Palavra.java</file>
             <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/Token.java</file>
             <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/LeitorArquivo.java</file>
-            <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/Identificador.java</file>
-            <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/Palavra.java</file>
-            <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/NumberBadFormattedException.java</file>
-            <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/LiteralBadFormattedException.java</file>
             <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/AnalisadorLexico.java</file>
             <file>file:/C:/Users/Meu%20Computador/Desktop/Materias/2021.1/Compiladores/Trabalho/repo/TP_Compiladores/Compilador/src/compilador/Metodo.java</file>
         </group>

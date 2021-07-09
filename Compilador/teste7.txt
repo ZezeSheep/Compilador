@@ -1,0 +1,4 @@
+init
+// Programa personalizado  
+write ("Hello Word");
+stop
