@@ -12,11 +12,13 @@ package compilador;
 public class AnalisadorSintatico {
     
     private AnalisadorLexico lexer;
+    private Ambiente tabelaSimbolosAtual;
     
     private Token tok;
     
     public AnalisadorSintatico(AnalisadorLexico lexer) {
         this.lexer = lexer;
+        tabelaSimbolosAtual = new Ambiente(null);
     }
     
     private void advance(){
@@ -29,13 +31,23 @@ public class AnalisadorSintatico {
     }
     
     private void error(){
-        System.out.println("to be implemented");
+        System.out.println("erro sintatico linha: " + lexer.linha);
     }
     
     /*
     program -> class id program_prime
     program_prime -> body | decl_list body
     */
+    
+    private void startAnalysis(){
+        switch(tok.getTag()){
+            case Constantes.CLASS: program();
+                                   eat(new Token(Constantes.EOF));
+                                   break;
+
+            default: error(); break;
+        }
+    }
     
     private void program(){
         switch(tok.getTag()){
