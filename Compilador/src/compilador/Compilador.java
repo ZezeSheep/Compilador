@@ -15,35 +15,10 @@ public class Compilador {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        AnalisadorLexico analizadorLexico = new AnalisadorLexico(args[0]);
+        AnalisadorLexico analisadorLexico = new AnalisadorLexico(args[0]);
         Ambiente tabelaSimbolos = new Ambiente(null);
-        
-        System.out.println(">> Iniciando compilador");
-        Token t;
-        System.out.println(">>\t Iniciando analise lexica");
-        System.out.println(">>\t Fluxo de tokens:");
-        while(!analizadorLexico.isEOF){
-            t = analizadorLexico.scan();
-            if(!analizadorLexico.error && t.getTag() != Constantes.EOF){
-                System.out.println(">>\t\t Token: "+t);
-                if(analizadorLexico.getPalavras().contains(t)){
-                    if(t.getTag() == Constantes.ID)
-                        tabelaSimbolos.adicionaSimbolo(t, new Identificador());
-                    else 
-                        tabelaSimbolos.adicionaSimbolo(t, new PalavraReservada());
-                }
-            } 
-        }
-        System.out.println(">>\t Fim do fluxo de tokens");
-        System.out.println(">>\t Tabela de símbolos incompleta:");
-        tabelaSimbolos.printTable(2);
-        System.out.println(">>\t Analise lexica concluida");
-        if(analizadorLexico.error){
-                System.out.println(">>\t com erro.");
-                for(String s: analizadorLexico.getErros()){
-                    System.out.println("**\t\t" + s);
-                }
-        }
+        AnalisadorSintatico analisadorSintatico = new AnalisadorSintatico(analisadorLexico);
+        analisadorSintatico.startAnalysis();        
         System.out.println(">> Compilacao concluida");
     }
 

@@ -202,30 +202,35 @@ public class AnalisadorLexico {
                 break;
             case '&':
                 if (verificarProximoCaracter('&')) {
+                	lerCaracter();
                     return Palavra.AND;
                 } else {
                     return new Token('&');
                 }
             case '=':
                 if (verificarProximoCaracter('=')) {
+                	lerCaracter();
                     return Palavra.EQ;
                 } else {
                     return new Token('=');
                 }
             case '!':
                 if (verificarProximoCaracter('=')) {
+                	lerCaracter();
                     return Palavra.NE;
                 } else {
                     return new Token('!');
                 }
             case '>':
-                if (verificarProximoCaracter('=')) {
+                if (verificarProximoCaracter('=')) {  
+                	lerCaracter();
                     return Palavra.GE;
                 } else {
                     return Palavra.GT;
                 }
             case '<':
-                if (verificarProximoCaracter('=')) {
+                if (verificarProximoCaracter('=')) {    
+                	lerCaracter();
                     return Palavra.LE;
                 } else {
                     return Palavra.LT;
