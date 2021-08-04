@@ -164,7 +164,6 @@ public class AnalisadorSintatico {
         switch(tok.getTag()){
             case Constantes.INIT: eat(new Token(Constantes.INIT));
                                   stmt_list();
-                                  System.out.println(tok.toString());
                                   eat(new Token(Constantes.STOP));
                                   break;
 
@@ -184,7 +183,6 @@ public class AnalisadorSintatico {
             case Constantes.DO: 
             case Constantes.READ: 
             case Constantes.WRITE: stmt();
-            						System.out.println(tok.toString());
                                    eat(new Token(';'));
                                    stmt_list_prime();                                   
                                    break;
@@ -193,7 +191,7 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void stmt_list_prime() throws ErroSintaticoException{    	
+    private void stmt_list_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.ID: 
             case Constantes.IF: 

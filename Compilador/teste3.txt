@@ -22,5 +22,5 @@ if (qtd>=2){
 	write (media);
 } else{
 	write("Quantidade inválida.");
-}
+};
 stop
