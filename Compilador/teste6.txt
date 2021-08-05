@@ -1,8 +1,10 @@
-init
-// Programa personalizado  
-int idade, dobro;
-write("Digite o sua idade: ");
-read(idade);
-dobro = 2 * idade;
-write ("O dobro da sua idade é "+ dobro);
-stop
+class teste6
+	int idade, dobro;
+	init
+		// Programa personalizado  
+		
+		write("Digite o sua idade: ");
+		read(idade);
+		dobro = 2 * idade;
+		write ("O dobro da sua idade é "+ dobro);
+	stop

@@ -239,6 +239,7 @@ public class AnalisadorSintatico {
         switch(tok.getTag()){
             case Constantes.IF: eat(new Token(Constantes.IF));
                                 eat(new Token('('));
+                                
                                 condition();
                                 eat(new Token(')'));
                                 eat(new Token('{'));
@@ -341,7 +342,7 @@ public class AnalisadorSintatico {
     
     /*
     expression -> simple_expr expression_prime
-    expression_prime -> relop simple_expr | lambda
+    expression_prime -> relop simple_expr expression_prime | lambda
     */
     
     private void expression() throws ErroSintaticoException{
@@ -367,6 +368,7 @@ public class AnalisadorSintatico {
             case Constantes.NE:
             case Constantes.EQ: relop();
                                 simple_expr();
+                                expression_prime();
                                 break;
             default: break;
         }
@@ -380,7 +382,7 @@ public class AnalisadorSintatico {
     
     private void simple_expr() throws ErroSintaticoException{
         switch(tok.getTag()){
-        	case Constantes.LITERAL:
+            case Constantes.LITERAL:
             case Constantes.ID: 
             case Constantes.NUM: 
             case '(': 
