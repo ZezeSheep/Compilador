@@ -1,13 +1,32 @@
 package compilador;
 
 public class Metodo extends Identificador {
-	private Class tipoSaida;
-	private Class[] tiposEntrada;
+	private int tipoSaida;
+	private int[] tiposEntrada;
 	
-	public Metodo(Class[] tiposEntrada, Class tipoSaida) {
+	public Metodo(int[] tiposEntrada, int tipoSaida) {
 		super();
+		super.tipo = tipoSaida;
 		this.tiposEntrada = tiposEntrada;
 		this.tipoSaida = tipoSaida;
 	}
+
+	public int getTipoSaida() {
+		return tipoSaida;
+	}
+
+	public void setTipoSaida(int tipoSaida) {
+		this.tipoSaida = tipoSaida;
+	}
+
+	public int[] getTiposEntrada() {
+		return tiposEntrada;
+	}
+
+	public void setTiposEntrada(int[] tiposEntrada) {
+		this.tiposEntrada = tiposEntrada;
+	}
+	
+	
 
 }

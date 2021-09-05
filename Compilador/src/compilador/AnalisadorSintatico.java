@@ -395,17 +395,49 @@ public class AnalisadorSintatico {
         }
     }
    
-    private void simple_expr_prime() throws ErroSintaticoException{
+    private int simple_expr_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
             case '+':
             case '-':
-            case Constantes.OR: addop();
-                                term();
-                                simple_expr_prime();
+            case Constantes.OR: 
+            					Token aux = tok;
+            					addop();
+            					int tipoTerm = term();
+            					int tipoSimpleExprPrime = simple_expr_prime();
+            					switch(aux.getTag()) {
+            						case '+':
+            							if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO)
+            								return Constantes.ERRO;
+            							else if(tipoTerm == Constantes.STRING || tipoSimpleExprPrime == Constantes.STRING)
+            								return Constantes.STRING;
+            							else if(tipoTerm == Constantes.FLOAT || tipoSimpleExprPrime == Constantes.FLOAT)
+            								return Constantes.FLOAT;
+            							else
+            								return Constantes.INT;
+            						case '-':
+            							if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO)
+            								return Constantes.ERRO;
+            							else if(tipoTerm == Constantes.STRING || tipoSimpleExprPrime == Constantes.STRING)
+            								return Constantes.ERRO;
+            							else if(tipoTerm == Constantes.FLOAT || tipoSimpleExprPrime == Constantes.FLOAT)
+            								return Constantes.FLOAT;
+            							else
+            								return Constantes.INT;
+            						case Constantes.OR:
+            							if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO)
+            								return Constantes.ERRO;
+            							else if(tipoTerm == Constantes.STRING || tipoSimpleExprPrime == Constantes.STRING)
+            								return Constantes.ERRO;
+            							else if(tipoTerm == Constantes.FLOAT || tipoSimpleExprPrime == Constantes.FLOAT)
+            								return Constantes.INT;
+            							else
+            								return Constantes.INT;
+            					}
                                 break;
             
             default: break;
         }
+		return 0;
     }
     
     /*
@@ -415,60 +447,81 @@ public class AnalisadorSintatico {
     
     term_prime -> mulop factor-a term_prime | lambda
     */
-    private void term() throws ErroSintaticoException{
+    private int term() throws ErroSintaticoException{
         switch(tok.getTag()){
         	case Constantes.LITERAL:
             case Constantes.ID: 
             case Constantes.NUM: 
             case '(': 
             case '!': 
-            case '-': factor_a();
-                      term_prime();
-                      break;
-                    
+            case '-': int tipoFactorA = factor_a();
+                      int tipoTermPrime = term_prime();
+                      if(tipoTermPrime == Constantes.ERRO)
+                    	  return Constantes.ERRO;
+                      else if (tipoTermPrime == Constantes.VAZIO)
+                    	  return tipoFactorA;
+                      else if(tipoFactorA == Constantes.FLOAT || tipoTermPrime == Constantes.FLOAT)
+                    	  return Constantes.FLOAT;
+                      else
+                    	  return Constantes.INT;                    
             
             default: error(); break;
         }
+		return 0;
     }
     
-    private void term_prime() throws ErroSintaticoException{
+    private int term_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
             case '*': 
             case '/': 
-            case Constantes.AND: mulop();
-                                 factor_a();
-                                 term_prime();
-                                 break;
+            case Constantes.AND: 
+            	mulop();
+            	int tipoFactorA = factor_a();
+            	int tipoTermPrime = term_prime();
+            	if(tipoFactorA == Constantes.STRING || tipoTermPrime == Constantes.STRING)
+            		return Constantes.ERRO;
+            	else if (tipoTermPrime == Constantes.VAZIO)
+            		return tipoFactorA;
+            	else if(tipoFactorA == Constantes.FLOAT || tipoTermPrime == Constantes.FLOAT)
+            		return Constantes.FLOAT;
+            	else
+            		return Constantes.INT;
 
-            default: break;
+
+            default: return Constantes.VAZIO;
         }
     }
     
-    private void factor_a() throws ErroSintaticoException{
+    private int factor_a() throws ErroSintaticoException{
         switch(tok.getTag()){
         	case Constantes.LITERAL:
             case Constantes.ID: 
             case Constantes.NUM: 
-            case '(': factor();
-                      break;
+            case '(': return factor();
             case '!': eat(new Token('!'));
-                      factor();
+                      return factor();
             case '-': eat(new Token('-'));
-                      factor();
+                      return factor();
             
             default: error(); break;
         }
+		return 0;
     }
     
-    private void factor() throws ErroSintaticoException{
+    private int factor() throws ErroSintaticoException{
         switch(tok.getTag()){
-        	case Constantes.LITERAL: eat(new Token(Constantes.LITERAL)); break;
-            case Constantes.ID: eat(new Token(Constantes.ID)); break;
+        	case Constantes.LITERAL: 
+        		eat(new Token(Constantes.LITERAL));
+        		return Constantes.STRING;
+            case Constantes.ID:
+            	Token aux = tok; 
+            	eat(new Token(Constantes.ID));            	
+            	return tabelaSimbolosAtual.obter_tipo((Palavra) aux);
             case Constantes.NUM: eat(new Token(Constantes.NUM)); break;
             case '(': eat(new Token('('));
-                      expression(); 
+                      int tipoExpression = expression(); 
                       eat(new Token(')'));
-                      break;
+                      return tipoExpression;
             
             default: error(); break;
         }

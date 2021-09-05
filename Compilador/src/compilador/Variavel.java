@@ -1,14 +1,10 @@
 package compilador;
 
-public class Variavel extends Identificador {
+public class Variavel extends Identificador {	
 	
-	private Class tipo;
-	private Object valor;
-	
-	public Variavel(Object variavel){
+	public Variavel(int tipo){
 		super();
-		this.valor = variavel;
-		this.tipo = variavel.getClass();
+		super.tipo = tipo;
 	}
 
 }
