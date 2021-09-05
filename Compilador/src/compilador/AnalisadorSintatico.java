@@ -116,8 +116,8 @@ public class AnalisadorSintatico {
         switch(tok.getTag()){
             case Constantes.INT:
             case Constantes.STRING: 
-            case Constantes.FLOAT: type();
-                                   ident_list();
+            case Constantes.FLOAT: int tipoType = type();
+                                   ident_list(tipoType);
                                    break;
 
             default: error(); break;
@@ -129,46 +129,56 @@ public class AnalisadorSintatico {
     ident_list_prime -> , id ident_list_prime | lambda
     */
     
-    private void ident_list() throws ErroSintaticoException{
+    private void ident_list(int tipoType) throws ErroSintaticoException{
         switch(tok.getTag()){
-            case Constantes.ID: eat(new Token(Constantes.ID));
-                                ident_list_prime();
+            case Constantes.ID: Token aux = tok;
+            					eat(new Token(Constantes.ID));
+            					Palavra auxPalavra = (Palavra) aux;
+                                Variavel variavel = new Variavel(tipoType);
+                                tabelaSimbolosAtual.adicionaSimbolo(auxPalavra.getLexeme(), variavel);
+                                ident_list_prime(tipoType);
                                 break;
 
             default: error(); break;
         }
     }
     
-    private void ident_list_prime() throws ErroSintaticoException{
+    private void ident_list_prime(int tipoType) throws ErroSintaticoException{
         switch(tok.getTag()){
             case ',': eat(new Token(','));
+            		  Token aux = tok;
                       eat(new Token(Constantes.ID));
-                      ident_list_prime();
+                      Palavra auxPalavra = (Palavra) aux;
+                      Variavel variavel = new Variavel(tipoType);
+                      tabelaSimbolosAtual.adicionaSimbolo(auxPalavra.getLexeme(), variavel);
+                      ident_list_prime(tipoType);
                       break;
 
             default: break;
         }
     }
     
-    private void type() throws ErroSintaticoException{
+    private int type() throws ErroSintaticoException{
         switch(tok.getTag()){
-            case Constantes.INT: eat(new Token(Constantes.INT)); break;
-            case Constantes.STRING: eat(new Token(Constantes.STRING)); break;
-            case Constantes.FLOAT: eat(new Token(Constantes.FLOAT)); break;
+            case Constantes.INT: eat(new Token(Constantes.INT)); return Constantes.INT;
+            case Constantes.STRING: eat(new Token(Constantes.STRING)); return Constantes.STRING;
+            case Constantes.FLOAT: eat(new Token(Constantes.FLOAT)); return Constantes.FLOAT;
 
             default: error(); break;
         }
+		return 0;
     }
     
-    private void body() throws ErroSintaticoException{
+    private int body() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.INIT: eat(new Token(Constantes.INIT));
-                                  stmt_list();
+                                  int tipoStmtList = stmt_list();
                                   eat(new Token(Constantes.STOP));
-                                  break;
+                                  return tipoStmtList;
 
             default: error(); break;
         }
+		return 0;
     }
     
     /*
@@ -176,58 +186,71 @@ public class AnalisadorSintatico {
     stmt_list_prime ->  stmt ; stmt_list_prime | lambda
     */
     
-    private void stmt_list() throws ErroSintaticoException{
+    private int stmt_list() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.ID: 
             case Constantes.IF: 
             case Constantes.DO: 
             case Constantes.READ: 
-            case Constantes.WRITE: stmt();
-                                   eat(new Token(';'));
-                                   stmt_list_prime();                                   
-                                   break;
+            case Constantes.WRITE: int tipoStmt = stmt();
+            					   eat(new Token(';'));
+            					   int tipoStmtListPrime = stmt_list_prime();
+            					   if(tipoStmt == Constantes.VAZIO && tipoStmtListPrime == Constantes.VAZIO)
+            						   return Constantes.VAZIO;
+            					   else
+            						   return Constantes.ERRO;
                 
             default: error(); break;
         }
+		return 0;
     }
     
-    private void stmt_list_prime() throws ErroSintaticoException{
+    private int stmt_list_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.ID: 
             case Constantes.IF: 
             case Constantes.DO: 
             case Constantes.READ: 
-            case Constantes.WRITE: stmt();
+            case Constantes.WRITE: int tipoStmt = stmt();
                                    eat(new Token(';'));
-                                   stmt_list_prime();
-                                   break;
+                                   int tipoStmtListPrime = stmt_list_prime();
+                                   if(tipoStmt == Constantes.VAZIO && tipoStmtListPrime == Constantes.VAZIO)
+                                	   return Constantes.VAZIO;
+                                   else
+                                	   return Constantes.ERRO;
                 
-            default: break;
+            default: return Constantes.VAZIO;
         }
     }
     
-    private void stmt() throws ErroSintaticoException{
+    private int stmt() throws ErroSintaticoException{
         switch(tok.getTag()){
         	
-            case Constantes.ID: assign_stmt(); break;
-            case Constantes.IF: if_stmt(); break;
-            case Constantes.DO: do_stmt(); break;
-            case Constantes.READ: read_stmt(); break;
-            case Constantes.WRITE: write_stmt(); break;
+            case Constantes.ID: return assign_stmt();
+            case Constantes.IF: return if_stmt();
+            case Constantes.DO: return do_stmt();
+            case Constantes.READ: return read_stmt();
+            case Constantes.WRITE: return write_stmt();
                 
             default: error(); break;
         }
+		return 0;
     }
     
-    private void assign_stmt() throws ErroSintaticoException{
+    private int assign_stmt() throws ErroSintaticoException{
         switch(tok.getTag()){
-            case Constantes.ID: eat(new Token(Constantes.ID));
+            case Constantes.ID: Token aux = tok;
+            					eat(new Token(Constantes.ID));
                                 eat(new Token('='));
-                                simple_expr();
-                                break;
+                                int tipoSimpleExpr = simple_expr();
+                                if(tipoSimpleExpr == tabelaSimbolosAtual.obter_tipo((Palavra)aux))
+                                	return Constantes.VAZIO;
+                                else
+                                	return Constantes.ERRO;
 
             default: error(); break;
         }
+		return 0;
     }
     
     /*
@@ -235,109 +258,128 @@ public class AnalisadorSintatico {
     if_stmt_prime -> else "{" stmt_list "}"  | lambda
     */
     
-    private void if_stmt() throws ErroSintaticoException{
+    private int if_stmt() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.IF: eat(new Token(Constantes.IF));
-                                eat(new Token('('));
-                                
-                                condition();
+                                eat(new Token('('));                                
+                                int tipoCondition = condition();
                                 eat(new Token(')'));
                                 eat(new Token('{'));
-                                stmt_list();
+                                int tipoStmtList = stmt_list();
                                 eat(new Token('}'));
-                                if_stmt_prime();
-                                break;
+                                int tipoIfStmtPrime = if_stmt_prime();
+                                if(tipoCondition != Constantes.INT)
+                                	return Constantes.ERRO;
+                                else if(tipoStmtList!=Constantes.ERRO)
+                                	return tipoIfStmtPrime;
+                                else
+                                	return Constantes.ERRO;
 
             default: error(); break;
         }
+		return 0;
     }
     
-    private void if_stmt_prime() throws ErroSintaticoException{
+    private int if_stmt_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.ELSE: eat(new Token(Constantes.ELSE));
                                   eat(new Token('{'));
-                                  stmt_list();
+                                  int tipoStmtList = stmt_list(); 
                                   eat(new Token('}'));
-                                  break;
+                                  return tipoStmtList;
 
-            default: break;
+            default: return Constantes.VAZIO;
         }
     }
     
-    private void condition() throws ErroSintaticoException{
+    private int condition() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.ID: 
             case Constantes.NUM: 
             case '(': 
             case '!': 
-            case '-': expression();
-                      break;
+            case '-': return expression();
 
             default: error(); break;
         }
+		return 0;
     }
     
-    private void do_stmt() throws ErroSintaticoException{
+    private int do_stmt() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.DO:   eat(new Token(Constantes.DO));
                                   eat(new Token('{'));                                  
-                                  stmt_list();                                  
+                                  int tipoStmtList = stmt_list();                                  
                                   eat(new Token('}'));
-                                  do_sulfix();
-                                  break;
+                                  int tipoDoSufix = do_sulfix();
+                                  if(tipoDoSufix == Constantes.VAZIO)
+                                	  return tipoStmtList;
+                                  else
+                                	  return Constantes.ERRO;
 
             default: error(); break;
         }
+		return 0;
     }
     
-    private void do_sulfix() throws ErroSintaticoException{
+    private int do_sulfix() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.WHILE: eat(new Token(Constantes.WHILE));
                                   eat(new Token('('));
-                                  condition();
+                                  int tipoCondition = condition();
                                   eat(new Token(')'));
-                                  break;
+                                  if(tipoCondition == Constantes.INT)
+                                	  return Constantes.VAZIO;
+                                  else
+                                	  return Constantes.ERRO;
 
             default: error(); break;
         }
+		return 0;
     }
     
-    private void read_stmt() throws ErroSintaticoException{
+    private int read_stmt() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.READ: eat(new Token(Constantes.READ));
                                   eat(new Token('('));
                                   eat(new Token(Constantes.ID));
                                   eat(new Token(')'));
-                                  break;
+                                  return Constantes.VAZIO;
 
             default: error(); break;
         }
+		return 0;
     }
 
-    private void write_stmt() throws ErroSintaticoException{
+    private int write_stmt() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.WRITE: eat(new Token(Constantes.WRITE));
                                    eat(new Token('('));
-                                   writable();
+                                   int tipoWritable = writable();
                                    eat(new Token(')'));
-                                   break;
+                                   return tipoWritable;
 
             default: error(); break;
         }
+		return 0;
     }
     
-    private void writable() throws ErroSintaticoException{
+    private int writable() throws ErroSintaticoException{
         switch(tok.getTag()){
         	case Constantes.LITERAL:
             case Constantes.ID: 
             case Constantes.NUM: 
             case '(': 
             case '!': 
-            case '-': simple_expr();
-                      break;
+            case '-': int tipoSimpleExpr = simple_expr();
+            		  if(tipoSimpleExpr != Constantes.ERRO)
+            			  return Constantes.VAZIO;
+            		  else
+            			  return Constantes.ERRO;
 
             default: error(); break;
         }
+		return 0;
     }
     
     /*
@@ -345,21 +387,25 @@ public class AnalisadorSintatico {
     expression_prime -> relop simple_expr expression_prime | lambda
     */
     
-    private void expression() throws ErroSintaticoException{
+    private int expression() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.ID: 
             case Constantes.NUM: 
             case '(': 
             case '!': 
-            case '-': simple_expr();
-                      expression_prime();
-                      break;
+            case '-': int tipoSimpleExpr = simple_expr();
+            	int tipoExprPrime = expression_prime();
+            	if(tipoSimpleExpr == Constantes.INT && (tipoExprPrime== Constantes.INT || tipoExprPrime== Constantes.VAZIO))
+            		return Constantes.INT;
+            	else
+            		return Constantes.ERRO;
 
             default: error(); break;
         }
+		return 0;
     }
     
-    private void expression_prime() throws ErroSintaticoException{
+    private int expression_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.GT: 
             case Constantes.GE:
@@ -367,10 +413,13 @@ public class AnalisadorSintatico {
             case Constantes.LE:
             case Constantes.NE:
             case Constantes.EQ: relop();
-                                simple_expr();
-                                expression_prime();
-                                break;
-            default: break;
+                                int tipoSimpleExpr = simple_expr();
+                                int tipoExprPrime = expression_prime();
+                                if(tipoSimpleExpr == Constantes.INT && (tipoExprPrime== Constantes.INT || tipoExprPrime== Constantes.VAZIO))
+                                	return Constantes.INT;
+                                else
+                                	return Constantes.ERRO;
+            default: return Constantes.VAZIO;
         }
     }
     
@@ -380,19 +429,27 @@ public class AnalisadorSintatico {
     
     */
     
-    private void simple_expr() throws ErroSintaticoException{
+    private int simple_expr() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.LITERAL:
             case Constantes.ID: 
             case Constantes.NUM: 
             case '(': 
             case '!': 
-            case '-': term();
-                      simple_expr_prime();
-                      break;
+            case '-': int tipoTerm = term();
+                      int tipoSimpleExprPrime = simple_expr_prime();
+                      if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO)
+							return Constantes.ERRO;
+						else if(tipoTerm == Constantes.STRING || tipoSimpleExprPrime == Constantes.STRING)
+							return Constantes.STRING;
+						else if(tipoTerm == Constantes.FLOAT || tipoSimpleExprPrime == Constantes.FLOAT)
+							return Constantes.FLOAT;
+						else
+							return Constantes.INT;
 
             default: error(); break;
         }
+		return 0;
     }
    
     private int simple_expr_prime() throws ErroSintaticoException{
@@ -525,6 +582,7 @@ public class AnalisadorSintatico {
             
             default: error(); break;
         }
+		return 0;
     }
     
     private void relop() throws ErroSintaticoException{
