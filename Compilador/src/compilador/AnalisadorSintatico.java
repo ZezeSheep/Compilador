@@ -25,13 +25,13 @@ public class AnalisadorSintatico {
         tok = lexer.scan();
     }
     
-    private void eat(Token t){
+    private void eat(Token t) throws ErroSintaticoException{
         if(t.getTag() == this.tok.getTag()) advance();
         else error();
     }
     
-    private void error(){
-        System.out.println("erro sintatico linha: " + lexer.linha);
+    private void error() throws ErroSintaticoException{
+        throw new ErroSintaticoException("Erro na linha : " + lexer.linha);
     }
     
     /*
@@ -39,17 +39,24 @@ public class AnalisadorSintatico {
     program_prime -> body | decl_list body
     */
     
-    private void startAnalysis(){
-        switch(tok.getTag()){
-            case Constantes.CLASS: program();
-                                   eat(new Token(Constantes.EOF));
-                                   break;
-
-            default: error(); break;
+    public void startAnalysis(){
+    	advance();
+    	try {
+	        switch(tok.getTag()){
+	            case Constantes.CLASS: program();	
+	                                   eat(new Token(Constantes.EOF));
+	                                   break;
+	
+	            default: error(); break;
+	        }
+	        System.out.println("Analise sintatica concluida com sucesso, 0 erros encontrados.");
+        }catch(ErroSintaticoException e) {
+        	e.printStackTrace();
+        	System.out.println("Compilacao concluida com erro");
         }
     }
     
-    private void program(){
+    private void program() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.CLASS: eat(new Token(Constantes.CLASS));
                                    eat(new Token(Constantes.ID));
@@ -60,9 +67,9 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void program_prime(){
+    private void program_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
-            case Constantes.INT: 
+            case Constantes.INT:
             case Constantes.STRING: 
             case Constantes.FLOAT: decl_list();
                                    body();
@@ -79,9 +86,9 @@ public class AnalisadorSintatico {
     decl_list_prime ->  decl ; decl_list_prime | lambda
     */
     
-    private void decl_list(){
+    private void decl_list() throws ErroSintaticoException{
         switch(tok.getTag()){
-            case Constantes.INT: 
+            case Constantes.INT:
             case Constantes.STRING: 
             case Constantes.FLOAT: decl();
                                    eat(new Token(';'));
@@ -92,9 +99,9 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void decl_list_prime(){
+    private void decl_list_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
-            case Constantes.INT: 
+            case Constantes.INT:
             case Constantes.STRING: 
             case Constantes.FLOAT: decl();
                                    eat(new Token(';'));
@@ -105,9 +112,9 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void decl(){
+    private void decl() throws ErroSintaticoException{
         switch(tok.getTag()){
-            case Constantes.INT: 
+            case Constantes.INT:
             case Constantes.STRING: 
             case Constantes.FLOAT: type();
                                    ident_list();
@@ -122,7 +129,7 @@ public class AnalisadorSintatico {
     ident_list_prime -> , id ident_list_prime | lambda
     */
     
-    private void ident_list(){
+    private void ident_list() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.ID: eat(new Token(Constantes.ID));
                                 ident_list_prime();
@@ -132,18 +139,18 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void ident_list_prime(){
+    private void ident_list_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
-            case Constantes.ID: eat(new Token(','));
-                                eat(new Token(Constantes.ID));
-                                ident_list_prime();
-                                break;
+            case ',': eat(new Token(','));
+                      eat(new Token(Constantes.ID));
+                      ident_list_prime();
+                      break;
 
             default: break;
         }
     }
     
-    private void type(){
+    private void type() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.INT: eat(new Token(Constantes.INT)); break;
             case Constantes.STRING: eat(new Token(Constantes.STRING)); break;
@@ -153,13 +160,12 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void body(){
+    private void body() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.INIT: eat(new Token(Constantes.INIT));
                                   stmt_list();
                                   eat(new Token(Constantes.STOP));
-                                simple_expr();
-                                break;
+                                  break;
 
             default: error(); break;
         }
@@ -170,7 +176,7 @@ public class AnalisadorSintatico {
     stmt_list_prime ->  stmt ; stmt_list_prime | lambda
     */
     
-    private void stmt_list(){
+    private void stmt_list() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.ID: 
             case Constantes.IF: 
@@ -178,14 +184,14 @@ public class AnalisadorSintatico {
             case Constantes.READ: 
             case Constantes.WRITE: stmt();
                                    eat(new Token(';'));
-                                   stmt_list_prime();
+                                   stmt_list_prime();                                   
                                    break;
                 
             default: error(); break;
         }
     }
     
-    private void stmt_list_prime(){
+    private void stmt_list_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.ID: 
             case Constantes.IF: 
@@ -200,8 +206,9 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void stmt(){
+    private void stmt() throws ErroSintaticoException{
         switch(tok.getTag()){
+        	
             case Constantes.ID: assign_stmt(); break;
             case Constantes.IF: if_stmt(); break;
             case Constantes.DO: do_stmt(); break;
@@ -212,7 +219,7 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void assign_stmt(){
+    private void assign_stmt() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.ID: eat(new Token(Constantes.ID));
                                 eat(new Token('='));
@@ -228,22 +235,24 @@ public class AnalisadorSintatico {
     if_stmt_prime -> else "{" stmt_list "}"  | lambda
     */
     
-    private void if_stmt(){
+    private void if_stmt() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.IF: eat(new Token(Constantes.IF));
                                 eat(new Token('('));
+                                
                                 condition();
                                 eat(new Token(')'));
                                 eat(new Token('{'));
                                 stmt_list();
                                 eat(new Token('}'));
+                                if_stmt_prime();
                                 break;
 
             default: error(); break;
         }
     }
     
-    private void if_stmt_prime(){
+    private void if_stmt_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.ELSE: eat(new Token(Constantes.ELSE));
                                   eat(new Token('{'));
@@ -255,7 +264,7 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void condition(){
+    private void condition() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.ID: 
             case Constantes.NUM: 
@@ -268,19 +277,20 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void do_stmt(){
+    private void do_stmt() throws ErroSintaticoException{
         switch(tok.getTag()){
-            case Constantes.DO: eat(new Token(Constantes.DO));
-                                  eat(new Token('{'));
-                                  stmt_list();
+            case Constantes.DO:   eat(new Token(Constantes.DO));
+                                  eat(new Token('{'));                                  
+                                  stmt_list();                                  
                                   eat(new Token('}'));
+                                  do_sulfix();
                                   break;
 
             default: error(); break;
         }
     }
     
-    private void do_sulfix(){
+    private void do_sulfix() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.WHILE: eat(new Token(Constantes.WHILE));
                                   eat(new Token('('));
@@ -292,7 +302,7 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void read_stmt(){
+    private void read_stmt() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.READ: eat(new Token(Constantes.READ));
                                   eat(new Token('('));
@@ -304,7 +314,7 @@ public class AnalisadorSintatico {
         }
     }
 
-    private void write_stmt(){
+    private void write_stmt() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.WRITE: eat(new Token(Constantes.WRITE));
                                    eat(new Token('('));
@@ -316,8 +326,9 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void writable(){
+    private void writable() throws ErroSintaticoException{
         switch(tok.getTag()){
+        	case Constantes.LITERAL:
             case Constantes.ID: 
             case Constantes.NUM: 
             case '(': 
@@ -331,10 +342,10 @@ public class AnalisadorSintatico {
     
     /*
     expression -> simple_expr expression_prime
-    expression_prime -> relop simple_expr | lambda
+    expression_prime -> relop simple_expr expression_prime | lambda
     */
     
-    private void expression(){
+    private void expression() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.ID: 
             case Constantes.NUM: 
@@ -348,7 +359,7 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void expression_prime(){
+    private void expression_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.GT: 
             case Constantes.GE:
@@ -357,6 +368,7 @@ public class AnalisadorSintatico {
             case Constantes.NE:
             case Constantes.EQ: relop();
                                 simple_expr();
+                                expression_prime();
                                 break;
             default: break;
         }
@@ -368,8 +380,9 @@ public class AnalisadorSintatico {
     
     */
     
-    private void simple_expr(){
+    private void simple_expr() throws ErroSintaticoException{
         switch(tok.getTag()){
+            case Constantes.LITERAL:
             case Constantes.ID: 
             case Constantes.NUM: 
             case '(': 
@@ -382,7 +395,7 @@ public class AnalisadorSintatico {
         }
     }
    
-    private void simple_expr_prime(){
+    private void simple_expr_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
             case '+':
             case '-':
@@ -402,8 +415,9 @@ public class AnalisadorSintatico {
     
     term_prime -> mulop factor-a term_prime | lambda
     */
-    private void term(){
+    private void term() throws ErroSintaticoException{
         switch(tok.getTag()){
+        	case Constantes.LITERAL:
             case Constantes.ID: 
             case Constantes.NUM: 
             case '(': 
@@ -417,7 +431,7 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void term_prime(){
+    private void term_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
             case '*': 
             case '/': 
@@ -430,8 +444,9 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void factor_a(){
+    private void factor_a() throws ErroSintaticoException{
         switch(tok.getTag()){
+        	case Constantes.LITERAL:
             case Constantes.ID: 
             case Constantes.NUM: 
             case '(': factor();
@@ -445,8 +460,9 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void factor(){
+    private void factor() throws ErroSintaticoException{
         switch(tok.getTag()){
+        	case Constantes.LITERAL: eat(new Token(Constantes.LITERAL)); break;
             case Constantes.ID: eat(new Token(Constantes.ID)); break;
             case Constantes.NUM: eat(new Token(Constantes.NUM)); break;
             case '(': eat(new Token('('));
@@ -458,7 +474,7 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void relop(){
+    private void relop() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.GT: eat(new Token(Constantes.GT)); break;
             case Constantes.GE: eat(new Token(Constantes.GE)); break;
@@ -471,7 +487,7 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void addop(){
+    private void addop() throws ErroSintaticoException{
         switch(tok.getTag()){
             case '+': eat(new Token('+')); break;
             case '-': eat(new Token('-')); break;
@@ -481,7 +497,7 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void mulop(){
+    private void mulop() throws ErroSintaticoException{
         switch(tok.getTag()){
             case '*': eat(new Token('*')); break;
             case '/': eat(new Token('/')); break;

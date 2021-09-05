@@ -1,4 +1,5 @@
-init
-// Programa personalizado  
-write ("Hello Word");
-stop
+class HelloWord
+	init
+		// Programa personalizado  
+		write ("Hello Word");
+	stop
