@@ -67,18 +67,22 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void program_prime() throws ErroSintaticoException{
+    private int program_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.INT:
             case Constantes.STRING: 
-            case Constantes.FLOAT: decl_list();
-                                   body();
-                                   break;
+            case Constantes.FLOAT: int tipoDecList = decl_list();
+            						if(tipoDecList == Constantes.VAZIO)
+            							return body();
+            						else
+            							return Constantes.ERRO;
                                    
-            case Constantes.INIT: body(); break;            
+                                   
+            case Constantes.INIT: return body();            
 
             default: error(); break;
         }
+		return 0;
     }
     
     /*
@@ -86,41 +90,49 @@ public class AnalisadorSintatico {
     decl_list_prime ->  decl ; decl_list_prime | lambda
     */
     
-    private void decl_list() throws ErroSintaticoException{
+    private int decl_list() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.INT:
             case Constantes.STRING: 
-            case Constantes.FLOAT: decl();
-                                   eat(new Token(';'));
-                                   decl_list_prime();
-                                   break;
+            case Constantes.FLOAT: int tipodecl = decl();
+            						eat(new Token(';'));
+            						int tipoDeclListPrime = decl_list_prime();
+            						if(tipoDeclListPrime == Constantes.VAZIO && tipodecl == Constantes.VAZIO)
+            							return Constantes.VAZIO;
+            						else
+            							return Constantes.ERRO;
                 
             default: error(); break;
         }
+		return 0;
     }
     
-    private void decl_list_prime() throws ErroSintaticoException{
+    private int decl_list_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.INT:
             case Constantes.STRING: 
-            case Constantes.FLOAT: decl();
+            case Constantes.FLOAT: int tipodecl = decl();
                                    eat(new Token(';'));
-                                   decl_list_prime();
-                                   break;
+                                   int tipoDeclListPrime = decl_list_prime();
+                                   if(tipoDeclListPrime == Constantes.VAZIO && tipodecl == Constantes.VAZIO)
+                                	   return Constantes.VAZIO;
+                                   else
+                                	   return Constantes.ERRO;                                   
                 
             default: break;
         }
+		return 0;
     }
     
-    private void decl() throws ErroSintaticoException{
+    private int decl() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.INT:
             case Constantes.STRING: 
             case Constantes.FLOAT: int tipoType = type();
                                    ident_list(tipoType);
-                                   break;
+                                   return Constantes.VAZIO;
 
-            default: error(); break;
+            default: error(); return Constantes.VAZIO;
         }
     }
     
@@ -129,7 +141,7 @@ public class AnalisadorSintatico {
     ident_list_prime -> , id ident_list_prime | lambda
     */
     
-    private void ident_list(int tipoType) throws ErroSintaticoException{
+    private int ident_list(int tipoType) throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.ID: Token aux = tok;
             					eat(new Token(Constantes.ID));
@@ -137,13 +149,13 @@ public class AnalisadorSintatico {
                                 Variavel variavel = new Variavel(tipoType);
                                 tabelaSimbolosAtual.adicionaSimbolo(auxPalavra.getLexeme(), variavel);
                                 ident_list_prime(tipoType);
-                                break;
+                                return Constantes.VAZIO;
 
-            default: error(); break;
+            default: error(); return Constantes.VAZIO;
         }
     }
     
-    private void ident_list_prime(int tipoType) throws ErroSintaticoException{
+    private int ident_list_prime(int tipoType) throws ErroSintaticoException{
         switch(tok.getTag()){
             case ',': eat(new Token(','));
             		  Token aux = tok;
@@ -154,8 +166,9 @@ public class AnalisadorSintatico {
                       ident_list_prime(tipoType);
                       break;
 
-            default: break;
+            default: return Constantes.VAZIO;
         }
+		return 0;
     }
     
     private int type() throws ErroSintaticoException{
