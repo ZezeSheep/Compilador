@@ -56,15 +56,15 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void program() throws ErroSintaticoException{
+    private int program() throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.CLASS: eat(new Token(Constantes.CLASS));
                                    eat(new Token(Constantes.ID));
-                                   program_prime();
-                                   break;
+                                   return program_prime();
 
             default: error(); break;
         }
+		return 0;
     }
     
     private int program_prime() throws ErroSintaticoException{
