@@ -13,12 +13,14 @@ public class AnalisadorSintatico {
     
     private AnalisadorLexico lexer;
     private Ambiente tabelaSimbolosAtual;
+    private int linhaErroSemantico;
     
     private Token tok;
     
     public AnalisadorSintatico(AnalisadorLexico lexer) {
         this.lexer = lexer;
         tabelaSimbolosAtual = new Ambiente(null);
+        linhaErroSemantico = -1;
     }
     
     private void advance(){
@@ -34,6 +36,11 @@ public class AnalisadorSintatico {
         throw new ErroSintaticoException("Erro na linha : " + lexer.linha);
     }
     
+    private void setarLinhaErroSemantico(int linhaAtual){
+        if(linhaErroSemantico==-1)
+        	linhaErroSemantico = linhaAtual;
+    }
+    
     /*
     program -> class id program_prime
     program_prime -> body | decl_list body
@@ -43,7 +50,10 @@ public class AnalisadorSintatico {
     	advance();
     	try {
 	        switch(tok.getTag()){
-	            case Constantes.CLASS: program();	
+	            case Constantes.CLASS: int tipoPrograma = program();
+	            					   if(tipoPrograma == Constantes.ERRO) {
+	            						   throw new ErroSemanticoException("Erro semantico na linha: " +linhaErroSemantico+"\n");
+	            					   }
 	                                   eat(new Token(Constantes.EOF));
 	                                   break;
 	
@@ -53,7 +63,10 @@ public class AnalisadorSintatico {
         }catch(ErroSintaticoException e) {
         	e.printStackTrace();
         	System.out.println("Compilacao concluida com erro");
-        }
+        } catch (ErroSemanticoException e) {
+			e.printStackTrace();
+			System.out.println("Compilacao concluida com erro");
+		}
     }
     
     private int program() throws ErroSintaticoException{
@@ -74,8 +87,10 @@ public class AnalisadorSintatico {
             case Constantes.FLOAT: int tipoDecList = decl_list();
             						if(tipoDecList == Constantes.VAZIO)
             							return body();
-            						else
+            						else {
+            							setarLinhaErroSemantico(lexer.linha);
             							return Constantes.ERRO;
+            							}
                                    
                                    
             case Constantes.INIT: return body();            
@@ -99,8 +114,10 @@ public class AnalisadorSintatico {
             						int tipoDeclListPrime = decl_list_prime();
             						if(tipoDeclListPrime == Constantes.VAZIO && tipodecl == Constantes.VAZIO)
             							return Constantes.VAZIO;
-            						else
+            						else {
+            							setarLinhaErroSemantico(lexer.linha);
             							return Constantes.ERRO;
+            							}
                 
             default: error(); break;
         }
@@ -116,12 +133,13 @@ public class AnalisadorSintatico {
                                    int tipoDeclListPrime = decl_list_prime();
                                    if(tipoDeclListPrime == Constantes.VAZIO && tipodecl == Constantes.VAZIO)
                                 	   return Constantes.VAZIO;
-                                   else
+                                   else {
+                                	   setarLinhaErroSemantico(lexer.linha);
                                 	   return Constantes.ERRO;                                   
+                                   }
                 
-            default: break;
+            default: return Constantes.VAZIO;
         }
-		return 0;
     }
     
     private int decl() throws ErroSintaticoException{
@@ -147,9 +165,14 @@ public class AnalisadorSintatico {
             					eat(new Token(Constantes.ID));
             					Palavra auxPalavra = (Palavra) aux;
                                 Variavel variavel = new Variavel(tipoType);
-                                tabelaSimbolosAtual.adicionaSimbolo(auxPalavra.getLexeme(), variavel);
-                                ident_list_prime(tipoType);
-                                return Constantes.VAZIO;
+                                Boolean isSymbolAdded = tabelaSimbolosAtual.adicionaSimbolo(auxPalavra.getLexeme(), variavel);
+                                int tipoiDentList = ident_list_prime(tipoType);
+                                if(tipoiDentList == Constantes.VAZIO && isSymbolAdded)
+                                	return Constantes.VAZIO;
+                                else {
+                                	setarLinhaErroSemantico(lexer.linha);
+                                	return Constantes.ERRO;
+                                }
 
             default: error(); return Constantes.VAZIO;
         }
@@ -162,13 +185,17 @@ public class AnalisadorSintatico {
                       eat(new Token(Constantes.ID));
                       Palavra auxPalavra = (Palavra) aux;
                       Variavel variavel = new Variavel(tipoType);
-                      tabelaSimbolosAtual.adicionaSimbolo(auxPalavra.getLexeme(), variavel);
-                      ident_list_prime(tipoType);
-                      break;
+                      Boolean isSymbolAdded = tabelaSimbolosAtual.adicionaSimbolo(auxPalavra.getLexeme(), variavel);
+                      int tipoiDentList = ident_list_prime(tipoType);
+                      if(tipoiDentList == Constantes.VAZIO && isSymbolAdded)
+                      	return Constantes.VAZIO;
+                      else {
+                    	  setarLinhaErroSemantico(lexer.linha);
+                    	  return Constantes.ERRO;
+                      }
 
             default: return Constantes.VAZIO;
         }
-		return 0;
     }
     
     private int type() throws ErroSintaticoException{
@@ -210,8 +237,10 @@ public class AnalisadorSintatico {
             					   int tipoStmtListPrime = stmt_list_prime();
             					   if(tipoStmt == Constantes.VAZIO && tipoStmtListPrime == Constantes.VAZIO)
             						   return Constantes.VAZIO;
-            					   else
+            					   else {
+            						   setarLinhaErroSemantico(lexer.linha);
             						   return Constantes.ERRO;
+            					   }
                 
             default: error(); break;
         }
@@ -229,8 +258,10 @@ public class AnalisadorSintatico {
                                    int tipoStmtListPrime = stmt_list_prime();
                                    if(tipoStmt == Constantes.VAZIO && tipoStmtListPrime == Constantes.VAZIO)
                                 	   return Constantes.VAZIO;
-                                   else
+                                   else {
+                                	   setarLinhaErroSemantico(lexer.linha);
                                 	   return Constantes.ERRO;
+                                   }
                 
             default: return Constantes.VAZIO;
         }
@@ -258,8 +289,10 @@ public class AnalisadorSintatico {
                                 int tipoSimpleExpr = simple_expr();
                                 if(tipoSimpleExpr == tabelaSimbolosAtual.obter_tipo((Palavra)aux))
                                 	return Constantes.VAZIO;
-                                else
+                                else {
+                                	setarLinhaErroSemantico(lexer.linha);
                                 	return Constantes.ERRO;
+                                }
 
             default: error(); break;
         }
@@ -281,12 +314,18 @@ public class AnalisadorSintatico {
                                 int tipoStmtList = stmt_list();
                                 eat(new Token('}'));
                                 int tipoIfStmtPrime = if_stmt_prime();
-                                if(tipoCondition != Constantes.INT)
+                                if(tipoCondition != Constantes.INT) {
+                                	setarLinhaErroSemantico(lexer.linha);
                                 	return Constantes.ERRO;
-                                else if(tipoStmtList!=Constantes.ERRO)
+                                }
+                                else if(tipoStmtList!=Constantes.ERRO) {
+                                	setarLinhaErroSemantico(lexer.linha);
                                 	return tipoIfStmtPrime;
-                                else
+                                }
+                                else {
+                                	setarLinhaErroSemantico(lexer.linha);
                                 	return Constantes.ERRO;
+                                }
 
             default: error(); break;
         }
@@ -327,8 +366,10 @@ public class AnalisadorSintatico {
                                   int tipoDoSufix = do_sulfix();
                                   if(tipoDoSufix == Constantes.VAZIO)
                                 	  return tipoStmtList;
-                                  else
+                                  else {
+                                	  setarLinhaErroSemantico(lexer.linha);
                                 	  return Constantes.ERRO;
+                                  }
 
             default: error(); break;
         }
@@ -343,8 +384,10 @@ public class AnalisadorSintatico {
                                   eat(new Token(')'));
                                   if(tipoCondition == Constantes.INT)
                                 	  return Constantes.VAZIO;
-                                  else
+                                  else {
+                                	  setarLinhaErroSemantico(lexer.linha);
                                 	  return Constantes.ERRO;
+                                  }
 
             default: error(); break;
         }
@@ -387,8 +430,10 @@ public class AnalisadorSintatico {
             case '-': int tipoSimpleExpr = simple_expr();
             		  if(tipoSimpleExpr != Constantes.ERRO)
             			  return Constantes.VAZIO;
-            		  else
+            		  else {
+            			  setarLinhaErroSemantico(lexer.linha);
             			  return Constantes.ERRO;
+            		  }
 
             default: error(); break;
         }
@@ -410,8 +455,10 @@ public class AnalisadorSintatico {
             	int tipoExprPrime = expression_prime();
             	if(tipoSimpleExpr == Constantes.INT && (tipoExprPrime== Constantes.INT || tipoExprPrime== Constantes.VAZIO))
             		return Constantes.INT;
-            	else
+            	else {
+            		setarLinhaErroSemantico(lexer.linha);
             		return Constantes.ERRO;
+            	}
 
             default: error(); break;
         }
@@ -430,8 +477,10 @@ public class AnalisadorSintatico {
                                 int tipoExprPrime = expression_prime();
                                 if(tipoSimpleExpr == Constantes.INT && (tipoExprPrime== Constantes.INT || tipoExprPrime== Constantes.VAZIO))
                                 	return Constantes.INT;
-                                else
+                                else {
+                                	setarLinhaErroSemantico(lexer.linha);
                                 	return Constantes.ERRO;
+                                }
             default: return Constantes.VAZIO;
         }
     }
@@ -451,8 +500,10 @@ public class AnalisadorSintatico {
             case '!': 
             case '-': int tipoTerm = term();
                       int tipoSimpleExprPrime = simple_expr_prime();
-                      if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO)
-							return Constantes.ERRO;
+                      if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO) {
+                    	  setarLinhaErroSemantico(lexer.linha);
+                    	  return Constantes.ERRO;
+                      }
 						else if(tipoTerm == Constantes.STRING || tipoSimpleExprPrime == Constantes.STRING)
 							return Constantes.STRING;
 						else if(tipoTerm == Constantes.FLOAT || tipoSimpleExprPrime == Constantes.FLOAT)
@@ -476,8 +527,10 @@ public class AnalisadorSintatico {
             					int tipoSimpleExprPrime = simple_expr_prime();
             					switch(aux.getTag()) {
             						case '+':
-            							if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO)
+            							if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO) {
+            								setarLinhaErroSemantico(lexer.linha);
             								return Constantes.ERRO;
+            							}
             							else if(tipoTerm == Constantes.STRING || tipoSimpleExprPrime == Constantes.STRING)
             								return Constantes.STRING;
             							else if(tipoTerm == Constantes.FLOAT || tipoSimpleExprPrime == Constantes.FLOAT)
@@ -485,29 +538,36 @@ public class AnalisadorSintatico {
             							else
             								return Constantes.INT;
             						case '-':
-            							if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO)
+            							if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO) {
+            								setarLinhaErroSemantico(lexer.linha);
             								return Constantes.ERRO;
-            							else if(tipoTerm == Constantes.STRING || tipoSimpleExprPrime == Constantes.STRING)
+            							}
+            							else if(tipoTerm == Constantes.STRING || tipoSimpleExprPrime == Constantes.STRING) {
+            								setarLinhaErroSemantico(lexer.linha);
             								return Constantes.ERRO;
+            							}
             							else if(tipoTerm == Constantes.FLOAT || tipoSimpleExprPrime == Constantes.FLOAT)
             								return Constantes.FLOAT;
             							else
             								return Constantes.INT;
             						case Constantes.OR:
-            							if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO)
+            							if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO) {
+            								setarLinhaErroSemantico(lexer.linha);
             								return Constantes.ERRO;
-            							else if(tipoTerm == Constantes.STRING || tipoSimpleExprPrime == Constantes.STRING)
+            							}
+            							else if(tipoTerm == Constantes.STRING || tipoSimpleExprPrime == Constantes.STRING) {
+            								setarLinhaErroSemantico(lexer.linha);
             								return Constantes.ERRO;
+            							}
             							else if(tipoTerm == Constantes.FLOAT || tipoSimpleExprPrime == Constantes.FLOAT)
             								return Constantes.INT;
             							else
             								return Constantes.INT;
             					}
-                                break;
+                                
             
-            default: break;
+            default: return Constantes.VAZIO;
         }
-		return 0;
     }
     
     /*
@@ -526,10 +586,16 @@ public class AnalisadorSintatico {
             case '!': 
             case '-': int tipoFactorA = factor_a();
                       int tipoTermPrime = term_prime();
-                      if(tipoTermPrime == Constantes.ERRO)
+                      if(tipoTermPrime == Constantes.ERRO) {
+                    	  setarLinhaErroSemantico(lexer.linha);
                     	  return Constantes.ERRO;
+                      }
                       else if (tipoTermPrime == Constantes.VAZIO)
                     	  return tipoFactorA;
+                      else if(tipoFactorA == Constantes.STRING || tipoTermPrime == Constantes.STRING) {
+                    	  setarLinhaErroSemantico(lexer.linha);
+                    	  return Constantes.ERRO;
+                      }
                       else if(tipoFactorA == Constantes.FLOAT || tipoTermPrime == Constantes.FLOAT)
                     	  return Constantes.FLOAT;
                       else
@@ -549,7 +615,10 @@ public class AnalisadorSintatico {
             	int tipoFactorA = factor_a();
             	int tipoTermPrime = term_prime();
             	if(tipoFactorA == Constantes.STRING || tipoTermPrime == Constantes.STRING)
+            	{
+            		setarLinhaErroSemantico(lexer.linha);
             		return Constantes.ERRO;
+            	}
             	else if (tipoTermPrime == Constantes.VAZIO)
             		return tipoFactorA;
             	else if(tipoFactorA == Constantes.FLOAT || tipoTermPrime == Constantes.FLOAT)
@@ -585,8 +654,14 @@ public class AnalisadorSintatico {
         		return Constantes.STRING;
             case Constantes.ID:
             	Token aux = tok; 
-            	eat(new Token(Constantes.ID));            	
-            	return tabelaSimbolosAtual.obter_tipo((Palavra) aux);
+            	eat(new Token(Constantes.ID));
+            	Integer tipoIdentificador = tabelaSimbolosAtual.obter_tipo((Palavra) aux);
+            	if(tipoIdentificador == null) {
+            		setarLinhaErroSemantico(lexer.linha);
+            		return Constantes.ERRO;
+            	}
+            	else
+            		return tipoIdentificador;
             case Constantes.NUM: eat(new Token(Constantes.NUM)); break;
             case '(': eat(new Token('('));
                       int tipoExpression = expression(); 

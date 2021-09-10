@@ -13,9 +13,13 @@ public class Ambiente {
 		this.ambienteAnterior = ambienteAnterior;
 	}
 	
-	public void adicionaSimbolo(String nomeIdentificador, Identificador identificador) {
-            if(!this.simbolos.containsKey(nomeIdentificador))
-		simbolos.put(nomeIdentificador, identificador);
+	public Boolean adicionaSimbolo(String nomeIdentificador, Identificador identificador) {
+        if(!this.simbolos.containsKey(nomeIdentificador)) {
+        	simbolos.put(nomeIdentificador, identificador);
+        	return true;
+        }
+        else
+        	return false; // restricao unicidade
 	}
 	
 	public Boolean exists(String entrada) {
@@ -32,7 +36,7 @@ public class Ambiente {
 			for(ambiente = this; ambiente!=null; ambiente=ambiente.ambienteAnterior)
 				if(ambiente.simbolos.containsKey(entrada))
 					return ambiente.simbolos.get(entrada);
-			return null;
+			return null; // restricao de existencia
 		}
 		else
 			return null;
@@ -48,8 +52,12 @@ public class Ambiente {
             
         }
       
-      public int obter_tipo(Palavra entrada) {
-    	  return getIdentificador(entrada.getLexeme()).obter_tipo();
+      public Integer obter_tipo(Palavra entrada) {
+    	  Identificador identificador = getIdentificador(entrada.getLexeme());
+    	  if(identificador == null)
+    		  return null;
+    	  else
+    		  return getIdentificador(entrada.getLexeme()).obter_tipo();
       }
      
         
