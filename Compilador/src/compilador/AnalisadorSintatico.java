@@ -14,13 +14,17 @@ public class AnalisadorSintatico {
     private AnalisadorLexico lexer;
     private Ambiente tabelaSimbolosAtual;
     private int linhaErroSemantico;
+    private GeradorCodigo geradorCodigo;
     
     private Token tok;
     
-    public AnalisadorSintatico(AnalisadorLexico lexer) {
+    public AnalisadorSintatico(AnalisadorLexico lexer, String nomeArquivoEntrada) {
         this.lexer = lexer;
         tabelaSimbolosAtual = new Ambiente(null);
         linhaErroSemantico = -1;
+        String nomeArquivoExterno = nomeArquivoEntrada.replace(".txt", ".o");
+        geradorCodigo = new GeradorCodigo(nomeArquivoExterno);
+        geradorCodigo.escreverStringEmArquivo("START");
     }
     
     private void advance(){
@@ -55,6 +59,8 @@ public class AnalisadorSintatico {
 	            						   throw new ErroSemanticoException("Erro semantico na linha: " +linhaErroSemantico+"\n");
 	            					   }
 	                                   eat(new Token(Constantes.EOF));
+	                                   geradorCodigo.escreverStringEmArquivo("STOP");
+	                                   geradorCodigo.concluirEscrita();
 	                                   break;
 	
 	            default: error(); break;
@@ -63,9 +69,11 @@ public class AnalisadorSintatico {
         }catch(ErroSintaticoException e) {
         	e.printStackTrace();
         	System.out.println("Compilacao concluida com erro");
+        	geradorCodigo.cancelarArquivo();
         } catch (ErroSemanticoException e) {
 			e.printStackTrace();
 			System.out.println("Compilacao concluida com erro");
+			geradorCodigo.cancelarArquivo();
 		}
     }
     

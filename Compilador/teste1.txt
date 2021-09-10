@@ -1,6 +1,6 @@
 class Teste1
 int a,b,c;
-float result;
+int result;
 init
 write("Digite o valor de a:");
 read (a);

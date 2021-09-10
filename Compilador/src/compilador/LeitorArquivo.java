@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author Raphael Assis
+ * @author Gleiston, Jose Antonio, Raphael Assis
  */
 public class LeitorArquivo {
     
