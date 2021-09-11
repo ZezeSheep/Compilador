@@ -9,14 +9,18 @@ public class Ambiente {
 	
 	private Map<String, Identificador> simbolos;
 	private Ambiente ambienteAnterior;
+	private int offsetAtual;
 	
 	public Ambiente(Ambiente ambienteAnterior) {
 		simbolos = new HashMap<>();
 		this.ambienteAnterior = ambienteAnterior;
+		offsetAtual = 0;
 	}
 	
 	public Boolean adicionaSimbolo(String nomeIdentificador, Identificador identificador) {
         if(!this.simbolos.containsKey(nomeIdentificador)) {
+        	identificador.offsetFP = offsetAtual;
+        	offsetAtual++;
         	simbolos.put(nomeIdentificador, identificador);
         	return true;
         }
@@ -60,6 +64,14 @@ public class Ambiente {
     		  return null;
     	  else
     		  return getIdentificador(entrada.getLexeme()).obter_tipo();
+      }
+      
+      public Integer obter_offset(Palavra entrada) {
+    	  Identificador identificador = getIdentificador(entrada.getLexeme());
+    	  if(identificador == null)
+    		  return null;
+    	  else
+    		  return getIdentificador(entrada.getLexeme()).obter_offset();
       }
      
         

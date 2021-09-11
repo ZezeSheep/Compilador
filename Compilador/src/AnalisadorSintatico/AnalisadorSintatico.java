@@ -24,6 +24,7 @@ public class AnalisadorSintatico {
     private Ambiente tabelaSimbolosAtual;
     private int linhaErroSemantico;
     private GeradorCodigo geradorCodigo;
+    private int numeroVariaveis;
     
     private Token tok;
     
@@ -34,6 +35,7 @@ public class AnalisadorSintatico {
         String nomeArquivoExterno = nomeArquivoEntrada.replace(".txt", ".o");
         geradorCodigo = new GeradorCodigo(nomeArquivoExterno);
         geradorCodigo.escreverStringEmArquivo("START");
+        numeroVariaveis = 0;
     }
     
     private void advance(){
@@ -102,8 +104,10 @@ public class AnalisadorSintatico {
             case Constantes.INT:
             case Constantes.STRING: 
             case Constantes.FLOAT: int tipoDecList = decl_list();
-            						if(tipoDecList == Constantes.VAZIO)
+            						if(tipoDecList == Constantes.VAZIO) {
+            							geradorCodigo.escreverStringEmArquivo("PUSHN "+numeroVariaveis);
             							return body();
+            						}
             						else {
             							setarLinhaErroSemantico(lexer.linha);
             							return Constantes.ERRO;
@@ -184,8 +188,10 @@ public class AnalisadorSintatico {
                                 Variavel variavel = new Variavel(tipoType);
                                 Boolean isSymbolAdded = tabelaSimbolosAtual.adicionaSimbolo(auxPalavra.getLexeme(), variavel);
                                 int tipoiDentList = ident_list_prime(tipoType);
-                                if(tipoiDentList == Constantes.VAZIO && isSymbolAdded)
+                                if(tipoiDentList == Constantes.VAZIO && isSymbolAdded) {
+                                	numeroVariaveis++;                               
                                 	return Constantes.VAZIO;
+                                }
                                 else {
                                 	setarLinhaErroSemantico(lexer.linha);
                                 	return Constantes.ERRO;
@@ -204,8 +210,10 @@ public class AnalisadorSintatico {
                       Variavel variavel = new Variavel(tipoType);
                       Boolean isSymbolAdded = tabelaSimbolosAtual.adicionaSimbolo(auxPalavra.getLexeme(), variavel);
                       int tipoiDentList = ident_list_prime(tipoType);
-                      if(tipoiDentList == Constantes.VAZIO && isSymbolAdded)
-                      	return Constantes.VAZIO;
+                      if(tipoiDentList == Constantes.VAZIO && isSymbolAdded) {
+                    	  numeroVariaveis++;
+                    	  return Constantes.VAZIO;
+                      }
                       else {
                     	  setarLinhaErroSemantico(lexer.linha);
                     	  return Constantes.ERRO;
@@ -303,9 +311,12 @@ public class AnalisadorSintatico {
             case Constantes.ID: Token aux = tok;
             					eat(new Token(Constantes.ID));
                                 eat(new Token('='));
-                                int tipoSimpleExpr = simple_expr();
-                                if(tipoSimpleExpr == tabelaSimbolosAtual.obter_tipo((Palavra)aux))
+                                int tipoSimpleExpr = simple_expr();                                
+                                if(tipoSimpleExpr == tabelaSimbolosAtual.obter_tipo((Palavra)aux)) {
+                                	int offsetSimbolo = tabelaSimbolosAtual.obter_offset((Palavra)aux);
+                                	geradorCodigo.escreverStringEmArquivo("STOREL "+offsetSimbolo);
                                 	return Constantes.VAZIO;
+                                }
                                 else {
                                 	setarLinhaErroSemantico(lexer.linha);
                                 	return Constantes.ERRO;
