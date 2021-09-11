@@ -568,14 +568,34 @@ public class AnalisadorSintatico {
             								setarLinhaErroSemantico(lexer.linha);
             								return Constantes.ERRO;
             							}
-            							else if(tipoSimpleExprPrime == Constantes.VAZIO)
+            							else if(tipoSimpleExprPrime == Constantes.VAZIO) {
+            								if(tipoTerm == Constantes.STRING) {
+            									geradorCodigo.escreverStringEmArquivo("CONCAT");
+            								}
+            								else if(tipoTerm == Constantes.FLOAT){
+            									geradorCodigo.escreverStringEmArquivo("FADD");
+            								}
+            								else {
+            									geradorCodigo.escreverStringEmArquivo("ADD");
+            								}
             								return tipoTerm;
+            							}
             							else if(tipoTerm!=tipoSimpleExprPrime) {
             			                	  setarLinhaErroSemantico(lexer.linha);
             			                	  return Constantes.ERRO;
             			                 }
-            			            	else
+            			            	else {
+            			            		if(tipoTerm == Constantes.STRING) {
+            									geradorCodigo.escreverStringEmArquivo("CONCAT");
+            								}
+            								else if(tipoTerm == Constantes.FLOAT){
+            									geradorCodigo.escreverStringEmArquivo("FADD");
+            								}
+            								else {
+            									geradorCodigo.escreverStringEmArquivo("ADD");
+            								}
             			            		return tipoTerm;            							
+            			            	}
             						case '-':
             							if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO) {
             								setarLinhaErroSemantico(lexer.linha);
@@ -585,14 +605,28 @@ public class AnalisadorSintatico {
             								setarLinhaErroSemantico(lexer.linha);
             								return Constantes.ERRO;
             							}
-            							else if(tipoSimpleExprPrime == Constantes.VAZIO)
+            							else if(tipoSimpleExprPrime == Constantes.VAZIO) {
+            								if(tipoTerm == Constantes.FLOAT){
+            									geradorCodigo.escreverStringEmArquivo("FSUB");
+            								}
+            								else {            								
+            									geradorCodigo.escreverStringEmArquivo("SUB");
+            								}
             								return tipoTerm;
+            							}
             							else if(tipoTerm!=tipoSimpleExprPrime) {
             			                	  setarLinhaErroSemantico(lexer.linha);
             			                	  return Constantes.ERRO;
             			                 }
-            			            	else
+            			            	else {
+            			            		if(tipoTerm == Constantes.FLOAT){
+            									geradorCodigo.escreverStringEmArquivo("FSUB");
+            								}
+            								else {
+            									geradorCodigo.escreverStringEmArquivo("SUB");
+            								}
             			            		return tipoTerm;
+            			            	}
             						case Constantes.OR:
             							if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO) {
             								setarLinhaErroSemantico(lexer.linha);
@@ -602,14 +636,18 @@ public class AnalisadorSintatico {
             								setarLinhaErroSemantico(lexer.linha);
             								return Constantes.ERRO;
             							}
-            							else if(tipoSimpleExprPrime == Constantes.VAZIO)
+            							else if(tipoSimpleExprPrime == Constantes.VAZIO) {
+            								geradorCodigo.escreverStringEmArquivo("ADD");
             								return tipoTerm;
+            							}
             							else if(tipoTerm!=tipoSimpleExprPrime) {
             			                	  setarLinhaErroSemantico(lexer.linha);
             			                	  return Constantes.ERRO;
             			                 }
-            			            	else
+            			            	else {
+            			            		geradorCodigo.escreverStringEmArquivo("ADD");
             			            		return tipoTerm;
+            			            	}
             					}
                                 
             
