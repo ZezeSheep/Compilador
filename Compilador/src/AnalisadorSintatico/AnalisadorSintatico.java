@@ -485,7 +485,10 @@ public class AnalisadorSintatico {
             case '!': 
             case '-': int tipoSimpleExpr = simple_expr();
             	int tipoExprPrime = expression_prime();
-            	if(tipoSimpleExpr == Constantes.INT && (tipoExprPrime== Constantes.INT || tipoExprPrime== Constantes.VAZIO))
+            	if(tipoExprPrime == Constantes.VAZIO) {
+            		return tipoSimpleExpr;
+            	}
+            	else if(tipoSimpleExpr == Constantes.INT && tipoExprPrime== Constantes.INT) //ta errado aqui
             		return Constantes.INT;
             	else {
             		setarLinhaErroSemantico(lexer.linha);
@@ -631,7 +634,7 @@ public class AnalisadorSintatico {
                       else if(isDivisao)
                     	  return Constantes.FLOAT;
                       else
-                    	  return Constantes.INT;                    
+                    	  return Constantes.INT;   //pode retornar float                  
             
             default: error(); break;
         }
@@ -760,7 +763,7 @@ public class AnalisadorSintatico {
             case Constantes.NE: eat(new Token(Constantes.NE)); break;
             case Constantes.EQ: eat(new Token(Constantes.EQ)); break;
 
-            default: error(); break;
+
         }
     }
     
