@@ -488,7 +488,7 @@ public class AnalisadorSintatico {
             	if(tipoExprPrime == Constantes.VAZIO) {
             		return tipoSimpleExpr;
             	}
-            	else if(tipoSimpleExpr == Constantes.INT && tipoExprPrime== Constantes.INT) //ta errado aqui
+            	else if(tipoSimpleExpr == Constantes.INT && tipoExprPrime== Constantes.INT)
             		return Constantes.INT;
             	else {
             		setarLinhaErroSemantico(lexer.linha);
@@ -634,7 +634,7 @@ public class AnalisadorSintatico {
                       else if(isDivisao)
                     	  return Constantes.FLOAT;
                       else
-                    	  return Constantes.INT;   //pode retornar float                  
+                    	  return tipoFactorA;   //pode retornar float                  
             
             default: error(); break;
         }
