@@ -7,7 +7,7 @@ read (a);
 write("Digite o valor de c:");
 read (c);
 b = 10.1;
-result = (a * c)/(b + 5 - 345);
+result = (a * c)/(b + 5.0 - 345.0);
 write("O resultado e: ");
 write(result);
 stop

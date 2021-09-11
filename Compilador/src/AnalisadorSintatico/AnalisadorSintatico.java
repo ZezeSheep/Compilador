@@ -539,18 +539,20 @@ public class AnalisadorSintatico {
                     	  setarLinhaErroSemantico(lexer.linha);
                     	  return Constantes.ERRO;
                       }
-						else if(tipoTerm == Constantes.STRING || tipoSimpleExprPrime == Constantes.STRING)
-							return Constantes.STRING;
-						else if(tipoTerm == Constantes.FLOAT || tipoSimpleExprPrime == Constantes.FLOAT)
-							return Constantes.FLOAT;
-						else
-							return Constantes.INT;
+						else if(tipoSimpleExprPrime == Constantes.VAZIO)
+							return tipoTerm;
+						else if(tipoTerm!=tipoSimpleExprPrime) {
+		                	  setarLinhaErroSemantico(lexer.linha);
+		                	  return Constantes.ERRO;
+		                 }
+		            	else
+		            		return tipoTerm;
 
             default: error(); break;
         }
 		return 0;
     }
-   
+   // simple_expr_prime -> addop term simple_expr_prime | lambda
     private int simple_expr_prime() throws ErroSintaticoException{
         switch(tok.getTag()){
             case '+':
@@ -566,12 +568,14 @@ public class AnalisadorSintatico {
             								setarLinhaErroSemantico(lexer.linha);
             								return Constantes.ERRO;
             							}
-            							else if(tipoTerm == Constantes.STRING || tipoSimpleExprPrime == Constantes.STRING)
-            								return Constantes.STRING;
-            							else if(tipoTerm == Constantes.FLOAT || tipoSimpleExprPrime == Constantes.FLOAT)
-            								return Constantes.FLOAT;
-            							else
-            								return Constantes.INT;
+            							else if(tipoSimpleExprPrime == Constantes.VAZIO)
+            								return tipoTerm;
+            							else if(tipoTerm!=tipoSimpleExprPrime) {
+            			                	  setarLinhaErroSemantico(lexer.linha);
+            			                	  return Constantes.ERRO;
+            			                 }
+            			            	else
+            			            		return tipoTerm;            							
             						case '-':
             							if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO) {
             								setarLinhaErroSemantico(lexer.linha);
@@ -581,10 +585,14 @@ public class AnalisadorSintatico {
             								setarLinhaErroSemantico(lexer.linha);
             								return Constantes.ERRO;
             							}
-            							else if(tipoTerm == Constantes.FLOAT || tipoSimpleExprPrime == Constantes.FLOAT)
-            								return Constantes.FLOAT;
-            							else
-            								return Constantes.INT;
+            							else if(tipoSimpleExprPrime == Constantes.VAZIO)
+            								return tipoTerm;
+            							else if(tipoTerm!=tipoSimpleExprPrime) {
+            			                	  setarLinhaErroSemantico(lexer.linha);
+            			                	  return Constantes.ERRO;
+            			                 }
+            			            	else
+            			            		return tipoTerm;
             						case Constantes.OR:
             							if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO) {
             								setarLinhaErroSemantico(lexer.linha);
@@ -594,10 +602,14 @@ public class AnalisadorSintatico {
             								setarLinhaErroSemantico(lexer.linha);
             								return Constantes.ERRO;
             							}
-            							else if(tipoTerm == Constantes.FLOAT || tipoSimpleExprPrime == Constantes.FLOAT)
-            								return Constantes.INT;
-            							else
-            								return Constantes.INT;
+            							else if(tipoSimpleExprPrime == Constantes.VAZIO)
+            								return tipoTerm;
+            							else if(tipoTerm!=tipoSimpleExprPrime) {
+            			                	  setarLinhaErroSemantico(lexer.linha);
+            			                	  return Constantes.ERRO;
+            			                 }
+            			            	else
+            			            		return tipoTerm;
             					}
                                 
             
