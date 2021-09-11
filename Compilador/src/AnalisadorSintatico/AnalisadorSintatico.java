@@ -10,6 +10,7 @@ import Exception.ErroSemanticoException;
 import Exception.ErroSintaticoException;
 import TabelaDeSimbolos.Ambiente;
 import TabelaDeSimbolos.Variavel;
+import Tokens.ConstanteNumerica;
 import Tokens.Palavra;
 import Tokens.Token;
 import compilador.Constantes;
@@ -456,8 +457,10 @@ public class AnalisadorSintatico {
             case '(': 
             case '!': 
             case '-': int tipoSimpleExpr = simple_expr();
-            		  if(tipoSimpleExpr != Constantes.ERRO)
+            		  if(tipoSimpleExpr != Constantes.ERRO) {
+            			  geradorCodigo.escreverStringEmArquivo("WRITES");
             			  return Constantes.VAZIO;
+            		  }
             		  else {
             			  setarLinhaErroSemantico(lexer.linha);
             			  return Constantes.ERRO;
@@ -677,20 +680,32 @@ public class AnalisadorSintatico {
     
     private int factor() throws ErroSintaticoException{
         switch(tok.getTag()){
-        	case Constantes.LITERAL: 
+        	case Constantes.LITERAL:
+        		geradorCodigo.escreverStringEmArquivo("PUSHS "+((Palavra)tok).getLexeme());
         		eat(new Token(Constantes.LITERAL));
         		return Constantes.STRING;
             case Constantes.ID:
             	Token aux = tok; 
             	eat(new Token(Constantes.ID));
             	Integer tipoIdentificador = tabelaSimbolosAtual.obter_tipo((Palavra) aux);
+            	Integer offsetVariavel = tabelaSimbolosAtual.obter_offset((Palavra) aux);
+            	geradorCodigo.escreverStringEmArquivo("PUSHL "+offsetVariavel);
             	if(tipoIdentificador == null) {
             		setarLinhaErroSemantico(lexer.linha);
             		return Constantes.ERRO;
             	}
             	else
             		return tipoIdentificador;
-            case Constantes.NUM: eat(new Token(Constantes.NUM)); break;
+            case Constantes.NUM:
+            	ConstanteNumerica aux1 = ((ConstanteNumerica)tok);
+            	if(aux1.getValue().getClass().getSimpleName().equals("Integer")) {
+            		geradorCodigo.escreverStringEmArquivo("PUSHI "+ aux1.getValue());
+            	}
+            	else {
+            		geradorCodigo.escreverStringEmArquivo("PUSHF "+ aux1.getValue());
+            	}
+            	eat(new Token(Constantes.NUM)); 
+            	break;
             case '(': eat(new Token('('));
                       int tipoExpression = expression(); 
                       eat(new Token(')'));
