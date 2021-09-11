@@ -631,10 +631,14 @@ public class AnalisadorSintatico {
                     	  setarLinhaErroSemantico(lexer.linha);
                     	  return Constantes.ERRO;
                       }
+                      else if(tipoFactorA!=tipoTermPrime) {
+                    	  setarLinhaErroSemantico(lexer.linha);
+                    	  return Constantes.ERRO;
+                      }
                       else if(isDivisao)
                     	  return Constantes.FLOAT;
                       else
-                    	  return tipoFactorA;   //pode retornar float                  
+                    	  return tipoFactorA;                 
             
             default: error(); break;
         }
@@ -657,10 +661,12 @@ public class AnalisadorSintatico {
             	}
             	else if (tipoTermPrime == Constantes.VAZIO)
             		return tipoFactorA;
-            	else if(tipoFactorA == Constantes.FLOAT || tipoTermPrime == Constantes.FLOAT)
-            		return Constantes.FLOAT;
+            	else if(tipoFactorA!=tipoTermPrime) {
+              	  setarLinhaErroSemantico(lexer.linha);
+              	  return Constantes.ERRO;
+                }
             	else
-            		return Constantes.INT;
+            		return tipoFactorA;
             case '/':
             	mulop();
             	tipoFactorA = factor_a();
@@ -673,10 +679,12 @@ public class AnalisadorSintatico {
             	}
             	else if (tipoTermPrime == Constantes.VAZIO)
             		return tipoFactorA;
-            	else if(tipoFactorA == Constantes.FLOAT || tipoTermPrime == Constantes.FLOAT)
-            		return Constantes.FLOAT;
+            	else if(tipoFactorA!=tipoTermPrime) {
+                	  setarLinhaErroSemantico(lexer.linha);
+                	  return Constantes.ERRO;
+                 }
             	else
-            		return Constantes.INT;
+            		return tipoFactorA;
             case Constantes.AND: 
             	mulop();
             	tipoFactorA = factor_a();
@@ -689,10 +697,12 @@ public class AnalisadorSintatico {
             	}
             	else if (tipoTermPrime == Constantes.VAZIO)
             		return tipoFactorA;
-            	else if(tipoFactorA == Constantes.FLOAT || tipoTermPrime == Constantes.FLOAT)
-            		return Constantes.FLOAT;
+            	else if(tipoFactorA!=tipoTermPrime) {
+              	  setarLinhaErroSemantico(lexer.linha);
+              	  return Constantes.ERRO;
+               }
             	else
-            		return Constantes.INT;
+            		return tipoFactorA;
 
 
             default: return Constantes.VAZIO;
