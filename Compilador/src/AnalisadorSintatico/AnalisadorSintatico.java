@@ -428,6 +428,10 @@ public class AnalisadorSintatico {
         switch(tok.getTag()){
             case Constantes.READ: eat(new Token(Constantes.READ));
                                   eat(new Token('('));
+                                  Palavra aux = (Palavra) tok;
+                                  int offsetID = tabelaSimbolosAtual.obter_offset(aux);
+                                  geradorCodigo.escreverStringEmArquivo("READ");
+                                  geradorCodigo.escreverStringEmArquivo("STOREL "+offsetID);
                                   eat(new Token(Constantes.ID));
                                   eat(new Token(')'));
                                   return Constantes.VAZIO;
@@ -709,14 +713,28 @@ public class AnalisadorSintatico {
             		setarLinhaErroSemantico(lexer.linha);
             		return Constantes.ERRO;
             	}
-            	else if (tipoTermPrime == Constantes.VAZIO)
+            	else if (tipoTermPrime == Constantes.VAZIO) {
+            		if(tipoFactorA == Constantes.FLOAT){
+						geradorCodigo.escreverStringEmArquivo("FMUL");
+					}
+					else {
+						geradorCodigo.escreverStringEmArquivo("MUL");
+					}
             		return tipoFactorA;
+            	}
             	else if(tipoFactorA!=tipoTermPrime) {
               	  setarLinhaErroSemantico(lexer.linha);
               	  return Constantes.ERRO;
                 }
-            	else
+            	else {
+            		if(tipoFactorA == Constantes.FLOAT){
+						geradorCodigo.escreverStringEmArquivo("FMUL");
+					}
+					else {
+						geradorCodigo.escreverStringEmArquivo("MUL");
+					}
             		return tipoFactorA;
+            	}
             case '/':
             	mulop();
             	tipoFactorA = factor_a();
@@ -727,14 +745,28 @@ public class AnalisadorSintatico {
             		setarLinhaErroSemantico(lexer.linha);
             		return Constantes.ERRO;
             	}
-            	else if (tipoTermPrime == Constantes.VAZIO)
+            	else if (tipoTermPrime == Constantes.VAZIO) {
+            		if(tipoFactorA == Constantes.FLOAT){
+						geradorCodigo.escreverStringEmArquivo("FDIV");
+					}
+					else {
+						geradorCodigo.escreverStringEmArquivo("DIV");
+					}
             		return tipoFactorA;
+            	}
             	else if(tipoFactorA!=tipoTermPrime) {
                 	  setarLinhaErroSemantico(lexer.linha);
                 	  return Constantes.ERRO;
                  }
-            	else
+            	else {
+            		if(tipoFactorA == Constantes.FLOAT){
+						geradorCodigo.escreverStringEmArquivo("FDIV");
+					}
+					else {
+						geradorCodigo.escreverStringEmArquivo("DIV");
+					}
             		return tipoFactorA;
+            	}
             case Constantes.AND: 
             	mulop();
             	tipoFactorA = factor_a();
@@ -745,14 +777,18 @@ public class AnalisadorSintatico {
             		setarLinhaErroSemantico(lexer.linha);
             		return Constantes.ERRO;
             	}
-            	else if (tipoTermPrime == Constantes.VAZIO)
+            	else if (tipoTermPrime == Constantes.VAZIO) {
+            		geradorCodigo.escreverStringEmArquivo("MUL");
             		return tipoFactorA;
+            	}
             	else if(tipoFactorA!=tipoTermPrime) {
               	  setarLinhaErroSemantico(lexer.linha);
               	  return Constantes.ERRO;
                }
-            	else
+            	else {
+            		geradorCodigo.escreverStringEmArquivo("MUL");
             		return tipoFactorA;
+            	}
 
 
             default: return Constantes.VAZIO;
