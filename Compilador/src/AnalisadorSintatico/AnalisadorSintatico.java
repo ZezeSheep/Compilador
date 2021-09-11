@@ -26,6 +26,7 @@ public class AnalisadorSintatico {
     private int linhaErroSemantico;
     private GeradorCodigo geradorCodigo;
     private int numeroVariaveis;
+    private boolean isDivisao;
     
     private Token tok;
     
@@ -627,7 +628,7 @@ public class AnalisadorSintatico {
                     	  setarLinhaErroSemantico(lexer.linha);
                     	  return Constantes.ERRO;
                       }
-                      else if(tipoFactorA == Constantes.FLOAT || tipoTermPrime == Constantes.FLOAT)
+                      else if(isDivisao)
                     	  return Constantes.FLOAT;
                       else
                     	  return Constantes.INT;                    
@@ -638,13 +639,46 @@ public class AnalisadorSintatico {
     }
     
     private int term_prime() throws ErroSintaticoException{
+    	int tipoTermPrime;
+    	int tipoFactorA;
         switch(tok.getTag()){
-            case '*': 
-            case '/': 
+            case '*':
+            	mulop();
+            	tipoFactorA = factor_a();
+            	tipoTermPrime = term_prime();
+            	isDivisao = false;
+            	if(tipoFactorA == Constantes.STRING || tipoTermPrime == Constantes.STRING)
+            	{
+            		setarLinhaErroSemantico(lexer.linha);
+            		return Constantes.ERRO;
+            	}
+            	else if (tipoTermPrime == Constantes.VAZIO)
+            		return tipoFactorA;
+            	else if(tipoFactorA == Constantes.FLOAT || tipoTermPrime == Constantes.FLOAT)
+            		return Constantes.FLOAT;
+            	else
+            		return Constantes.INT;
+            case '/':
+            	mulop();
+            	tipoFactorA = factor_a();
+            	tipoTermPrime = term_prime();
+            	isDivisao = true;
+            	if(tipoFactorA == Constantes.STRING || tipoTermPrime == Constantes.STRING)
+            	{
+            		setarLinhaErroSemantico(lexer.linha);
+            		return Constantes.ERRO;
+            	}
+            	else if (tipoTermPrime == Constantes.VAZIO)
+            		return tipoFactorA;
+            	else if(tipoFactorA == Constantes.FLOAT || tipoTermPrime == Constantes.FLOAT)
+            		return Constantes.FLOAT;
+            	else
+            		return Constantes.INT;
             case Constantes.AND: 
             	mulop();
-            	int tipoFactorA = factor_a();
-            	int tipoTermPrime = term_prime();
+            	tipoFactorA = factor_a();
+            	tipoTermPrime = term_prime();
+            	isDivisao = false;
             	if(tipoFactorA == Constantes.STRING || tipoTermPrime == Constantes.STRING)
             	{
             		setarLinhaErroSemantico(lexer.linha);
