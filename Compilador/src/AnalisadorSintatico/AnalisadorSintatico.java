@@ -34,7 +34,7 @@ public class AnalisadorSintatico {
         this.lexer = lexer;
         tabelaSimbolosAtual = new Ambiente(null);
         linhaErroSemantico = -1;
-        String nomeArquivoExterno = nomeArquivoEntrada.replace(".txt", ".o");
+        String nomeArquivoExterno = "C:\\Users\\josec\\Desktop\\vm\\" + nomeArquivoEntrada.replace(".txt", ".o");
         geradorCodigo = new GeradorCodigo(nomeArquivoExterno);
         geradorCodigo.escreverStringEmArquivo("START");
         numeroVariaveis = 0;
@@ -430,7 +430,14 @@ public class AnalisadorSintatico {
                                   eat(new Token('('));
                                   Palavra aux = (Palavra) tok;
                                   int offsetID = tabelaSimbolosAtual.obter_offset(aux);
+                                  int tipoID = tabelaSimbolosAtual.obter_tipo(aux);
                                   geradorCodigo.escreverStringEmArquivo("READ");
+                                  if(tipoID == Constantes.INT) {
+                                	  geradorCodigo.escreverStringEmArquivo("ATOI");
+                                  }
+                                  else if(tipoID == Constantes.FLOAT) {
+                                	  geradorCodigo.escreverStringEmArquivo("ATOF");
+                                  }
                                   geradorCodigo.escreverStringEmArquivo("STOREL "+offsetID);
                                   eat(new Token(Constantes.ID));
                                   eat(new Token(')'));
@@ -463,7 +470,15 @@ public class AnalisadorSintatico {
             case '!': 
             case '-': int tipoSimpleExpr = simple_expr();
             		  if(tipoSimpleExpr != Constantes.ERRO) {
-            			  geradorCodigo.escreverStringEmArquivo("WRITES");
+            			  if(tipoSimpleExpr == Constantes.STRING) {
+            				  geradorCodigo.escreverStringEmArquivo("WRITES");            				  
+            			  }
+            			  else if(tipoSimpleExpr == Constantes.FLOAT) {
+            				  geradorCodigo.escreverStringEmArquivo("WRITEF");
+            			  }
+            			  else {
+            				  geradorCodigo.escreverStringEmArquivo("WRITEI");
+            			  }
             			  return Constantes.VAZIO;
             		  }
             		  else {
@@ -814,7 +829,7 @@ public class AnalisadorSintatico {
     private int factor() throws ErroSintaticoException{
         switch(tok.getTag()){
         	case Constantes.LITERAL:
-        		geradorCodigo.escreverStringEmArquivo("PUSHS "+((Palavra)tok).getLexeme());
+        		geradorCodigo.escreverStringEmArquivo("PUSHS \""+((Palavra)tok).getLexeme()+"\"");
         		eat(new Token(Constantes.LITERAL));
         		return Constantes.STRING;
             case Constantes.ID:
