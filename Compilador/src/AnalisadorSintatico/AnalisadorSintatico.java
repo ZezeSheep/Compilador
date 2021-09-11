@@ -732,14 +732,15 @@ public class AnalisadorSintatico {
             		return tipoIdentificador;
             case Constantes.NUM:
             	ConstanteNumerica aux1 = ((ConstanteNumerica)tok);
+            	eat(new Token(Constantes.NUM)); 
             	if(aux1.getValue().getClass().getSimpleName().equals("Integer")) {
             		geradorCodigo.escreverStringEmArquivo("PUSHI "+ aux1.getValue());
+            		return Constantes.INT;
             	}
             	else {
             		geradorCodigo.escreverStringEmArquivo("PUSHF "+ aux1.getValue());
+            		return Constantes.FLOAT;
             	}
-            	eat(new Token(Constantes.NUM)); 
-            	break;
             case '(': eat(new Token('('));
                       int tipoExpression = expression(); 
                       eat(new Token(')'));
