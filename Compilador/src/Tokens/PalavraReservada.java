@@ -1,4 +1,6 @@
-package compilador;
+package Tokens;
+
+import TabelaDeSimbolos.Identificador;
 
 public class PalavraReservada extends Identificador {
 	

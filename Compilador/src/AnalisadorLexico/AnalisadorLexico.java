@@ -3,13 +3,20 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compilador;
+package AnalisadorLexico;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Scanner;
+
+import Exception.LiteralBadFormattedException;
+import Exception.NumberBadFormattedException;
+import Tokens.ConstanteNumerica;
+import Tokens.Palavra;
+import Tokens.Token;
+import compilador.Constantes;
 
 /**
  *

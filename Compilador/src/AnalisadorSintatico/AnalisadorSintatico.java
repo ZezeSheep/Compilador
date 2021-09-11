@@ -3,7 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compilador;
+package AnalisadorSintatico;
+
+import AnalisadorLexico.AnalisadorLexico;
+import Exception.ErroSemanticoException;
+import Exception.ErroSintaticoException;
+import TabelaDeSimbolos.Ambiente;
+import TabelaDeSimbolos.Variavel;
+import Tokens.Palavra;
+import Tokens.Token;
+import compilador.Constantes;
 
 /**
  *

@@ -1,4 +1,4 @@
-package compilador;
+package Exception;
 
 public class LiteralBadFormattedException extends Exception {
 	/**

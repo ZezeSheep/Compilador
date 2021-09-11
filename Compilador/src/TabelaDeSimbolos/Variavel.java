@@ -1,4 +1,4 @@
-package compilador;
+package TabelaDeSimbolos;
 
 public class Variavel extends Identificador {	
 	

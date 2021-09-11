@@ -1,7 +1,9 @@
-package compilador;
+package TabelaDeSimbolos;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import Tokens.Palavra;
 
 public class Ambiente {
 	

@@ -1,4 +1,4 @@
-package compilador;
+package TabelaDeSimbolos;
 
 public class Metodo extends Identificador {
 	private int tipoSaida;

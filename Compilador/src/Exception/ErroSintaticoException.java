@@ -1,4 +1,4 @@
-package compilador;
+package Exception;
 
 public class ErroSintaticoException extends Exception {
 	/**

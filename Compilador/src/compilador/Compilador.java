@@ -5,6 +5,10 @@
  */
 package compilador;
 
+import AnalisadorLexico.AnalisadorLexico;
+import AnalisadorSintatico.AnalisadorSintatico;
+import TabelaDeSimbolos.Ambiente;
+
 /**
  *
  * @author Raphael Assis
