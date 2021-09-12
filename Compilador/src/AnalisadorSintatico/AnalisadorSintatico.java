@@ -36,7 +36,7 @@ public class AnalisadorSintatico {
         this.lexer = lexer;
         tabelaSimbolosAtual = new Ambiente(null);
         linhaErroSemantico = -1;
-        String nomeArquivoExterno = "C:\\Users\\josec\\Desktop\\vm\\" + nomeArquivoEntrada.replace(".txt", ".o");
+        String nomeArquivoExterno = nomeArquivoEntrada.replace(".txt", ".o");
         geradorCodigo = new GeradorCodigo(nomeArquivoExterno);
         geradorCodigo.escreverStringEmArquivo("START");
         numeroVariaveis = 0;
