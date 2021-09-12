@@ -429,8 +429,14 @@ public class AnalisadorSintatico {
             case Constantes.READ: eat(new Token(Constantes.READ));
                                   eat(new Token('('));
                                   Palavra aux = (Palavra) tok;
-                                  int offsetID = tabelaSimbolosAtual.obter_offset(aux);
-                                  int tipoID = tabelaSimbolosAtual.obter_tipo(aux);
+                                  Integer offsetID = tabelaSimbolosAtual.obter_offset(aux);
+                                  if(offsetID == null) {
+                                	  eat(new Token(Constantes.ID));
+                                      eat(new Token(')'));
+                                	setarLinhaErroSemantico(lexer.linha);
+                                  	return Constantes.ERRO;
+                                  }
+                                  Integer tipoID = tabelaSimbolosAtual.obter_tipo(aux);
                                   geradorCodigo.escreverStringEmArquivo("READ");
                                   if(tipoID == Constantes.INT) {
                                 	  geradorCodigo.escreverStringEmArquivo("ATOI");
@@ -553,13 +559,15 @@ public class AnalisadorSintatico {
             case '(': 
             case '!': 
             case '-': int tipoTerm = term();
-                      int tipoSimpleExprPrime = simple_expr_prime();
+                      int tipoSimpleExprPrime = simple_expr_prime(tipoTerm);
                       if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO) {
                     	  setarLinhaErroSemantico(lexer.linha);
                     	  return Constantes.ERRO;
                       }
-						else if(tipoSimpleExprPrime == Constantes.VAZIO)
+						else if(tipoSimpleExprPrime == Constantes.VAZIO) {
+							
 							return tipoTerm;
+						}
 						else if(tipoTerm!=tipoSimpleExprPrime) {
 		                	  setarLinhaErroSemantico(lexer.linha);
 		                	  return Constantes.ERRO;
@@ -572,7 +580,7 @@ public class AnalisadorSintatico {
 		return 0;
     }
    // simple_expr_prime -> addop term simple_expr_prime | lambda
-    private int simple_expr_prime() throws ErroSintaticoException{
+    private int simple_expr_prime(int tipoTermo) throws ErroSintaticoException{
         switch(tok.getTag()){
             case '+':
             case '-':
@@ -580,7 +588,7 @@ public class AnalisadorSintatico {
             					Token aux = tok;
             					addop();
             					int tipoTerm = term();
-            					int tipoSimpleExprPrime = simple_expr_prime();
+            					int tipoSimpleExprPrime = simple_expr_prime(tipoTerm);
             					switch(aux.getTag()) {
             						case '+':
             							if(tipoTerm == Constantes.ERRO || tipoSimpleExprPrime == Constantes.ERRO) {
@@ -689,7 +697,7 @@ public class AnalisadorSintatico {
             case '(': 
             case '!': 
             case '-': int tipoFactorA = factor_a();
-                      int tipoTermPrime = term_prime();
+                      int tipoTermPrime = term_prime(tipoFactorA);
                       if(tipoTermPrime == Constantes.ERRO) {
                     	  setarLinhaErroSemantico(lexer.linha);
                     	  return Constantes.ERRO;
@@ -714,14 +722,14 @@ public class AnalisadorSintatico {
 		return 0;
     }
     
-    private int term_prime() throws ErroSintaticoException{
+    private int term_prime(int tipoFactorAAnteriror) throws ErroSintaticoException{
     	int tipoTermPrime;
     	int tipoFactorA;
         switch(tok.getTag()){
             case '*':
             	mulop();
             	tipoFactorA = factor_a();
-            	tipoTermPrime = term_prime();
+            	tipoTermPrime = term_prime(tipoFactorA);
             	isDivisao = false;
             	if(tipoFactorA == Constantes.STRING || tipoTermPrime == Constantes.STRING)
             	{
@@ -751,9 +759,12 @@ public class AnalisadorSintatico {
             		return tipoFactorA;
             	}
             case '/':
+            	if(tipoFactorAAnteriror == Constantes.INT) {            		
+            		geradorCodigo.escreverStringEmArquivo("ITOF");
+            	}
             	mulop();
             	tipoFactorA = factor_a();
-            	tipoTermPrime = term_prime();
+            	tipoTermPrime = term_prime(tipoFactorA);
             	isDivisao = true;
             	if(tipoFactorA == Constantes.STRING || tipoTermPrime == Constantes.STRING)
             	{
@@ -765,7 +776,8 @@ public class AnalisadorSintatico {
 						geradorCodigo.escreverStringEmArquivo("FDIV");
 					}
 					else {
-						geradorCodigo.escreverStringEmArquivo("DIV");
+						geradorCodigo.escreverStringEmArquivo("ITOF");
+						geradorCodigo.escreverStringEmArquivo("FDIV");
 					}
             		return tipoFactorA;
             	}
@@ -778,14 +790,15 @@ public class AnalisadorSintatico {
 						geradorCodigo.escreverStringEmArquivo("FDIV");
 					}
 					else {
-						geradorCodigo.escreverStringEmArquivo("DIV");
+						geradorCodigo.escreverStringEmArquivo("ITOF");
+						geradorCodigo.escreverStringEmArquivo("FDIV");
 					}
             		return tipoFactorA;
             	}
             case Constantes.AND: 
             	mulop();
             	tipoFactorA = factor_a();
-            	tipoTermPrime = term_prime();
+            	tipoTermPrime = term_prime(tipoFactorA);
             	isDivisao = false;
             	if(tipoFactorA == Constantes.STRING || tipoTermPrime == Constantes.STRING)
             	{
