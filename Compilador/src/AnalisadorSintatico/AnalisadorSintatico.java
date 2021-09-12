@@ -321,8 +321,12 @@ public class AnalisadorSintatico {
             case Constantes.ID: Token aux = tok;
             					eat(new Token(Constantes.ID));
                                 eat(new Token('='));
-                                int tipoSimpleExpr = simple_expr();                                
-                                if(tipoSimpleExpr == tabelaSimbolosAtual.obter_tipo((Palavra)aux)) {
+                                Integer tipoSimpleExpr = simple_expr();                                
+                                if(tipoSimpleExpr.equals(tabelaSimbolosAtual.obter_tipo((Palavra)aux))) {
+                                	if(tipoSimpleExpr == null) {
+                                	   setarLinhaErroSemantico(lexer.linha);
+                                 	   return Constantes.ERRO;
+                                	}
                                 	int offsetSimbolo = tabelaSimbolosAtual.obter_offset((Palavra)aux);
                                 	geradorCodigo.escreverStringEmArquivo("STOREL "+offsetSimbolo);
                                 	return Constantes.VAZIO;
@@ -537,6 +541,8 @@ public class AnalisadorSintatico {
             	}
             	else if(tipoSimpleExpr == Constantes.INT && tipoExprPrime== Constantes.INT)
             		return Constantes.INT;
+            	else if(tipoSimpleExpr == Constantes.FLOAT && tipoExprPrime== Constantes.FLOAT)
+            		return Constantes.INT;
             	else {
             		setarLinhaErroSemantico(lexer.linha);
             		return Constantes.ERRO;
@@ -612,6 +618,8 @@ public class AnalisadorSintatico {
                             		return tipoSimpleExpr;
                             	}
                             	else if(tipoSimpleExpr == Constantes.INT && tipoExprPrime== Constantes.INT)
+                            		return Constantes.INT;
+                            	else if(tipoSimpleExpr == Constantes.FLOAT && tipoExprPrime== Constantes.FLOAT)
                             		return Constantes.INT;
                             	else {
                             		setarLinhaErroSemantico(lexer.linha);
