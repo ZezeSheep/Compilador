@@ -27,6 +27,8 @@ public class AnalisadorSintatico {
     private GeradorCodigo geradorCodigo;
     private int numeroVariaveis;
     private boolean isDivisao;
+    private int currentLabelIndexIF;
+    private int currentLabelIndexDO;
     
     private Token tok;
     
@@ -38,6 +40,12 @@ public class AnalisadorSintatico {
         geradorCodigo = new GeradorCodigo(nomeArquivoExterno);
         geradorCodigo.escreverStringEmArquivo("START");
         numeroVariaveis = 0;
+        currentLabelIndexIF = 0;
+        currentLabelIndexDO = 0;
+    }
+    
+    private void printLabel(String nomeLabel, int index) {
+    	geradorCodigo.escreverStringEmArquivo(nomeLabel+index+":");
     }
     
     private void advance(){
@@ -336,14 +344,19 @@ public class AnalisadorSintatico {
     
     private int if_stmt() throws ErroSintaticoException{
         switch(tok.getTag()){
-            case Constantes.IF: eat(new Token(Constantes.IF));
-                                eat(new Token('('));                                
+            case Constantes.IF: int indexIfAtual = currentLabelIndexIF;
+            					currentLabelIndexIF++;
+            					eat(new Token(Constantes.IF));
+                                eat(new Token('('));
                                 int tipoCondition = condition();
+                                geradorCodigo.escreverStringEmArquivo("JZ ELSE"+indexIfAtual);
                                 eat(new Token(')'));
                                 eat(new Token('{'));
+                                
                                 int tipoStmtList = stmt_list();
                                 eat(new Token('}'));
-                                int tipoIfStmtPrime = if_stmt_prime();
+                                int tipoIfStmtPrime = if_stmt_prime(indexIfAtual);
+                                printLabel("FINALIFELSE", indexIfAtual);
                                 if(tipoCondition != Constantes.INT) {
                                 	setarLinhaErroSemantico(lexer.linha);
                                 	return Constantes.ERRO;
@@ -362,15 +375,19 @@ public class AnalisadorSintatico {
 		return 0;
     }
     
-    private int if_stmt_prime() throws ErroSintaticoException{
+    private int if_stmt_prime(int indexIfAtual) throws ErroSintaticoException{
         switch(tok.getTag()){
-            case Constantes.ELSE: eat(new Token(Constantes.ELSE));
+            case Constantes.ELSE: geradorCodigo.escreverStringEmArquivo("JUMP FINALIFELSE"+indexIfAtual);
+            					  printLabel("ELSE", indexIfAtual);
+            					  eat(new Token(Constantes.ELSE));
                                   eat(new Token('{'));
                                   int tipoStmtList = stmt_list(); 
                                   eat(new Token('}'));
                                   return tipoStmtList;
 
-            default: return Constantes.VAZIO;
+            default: 
+            	printLabel("ELSE", indexIfAtual);
+            	return Constantes.VAZIO;
         }
     }
     
@@ -389,11 +406,14 @@ public class AnalisadorSintatico {
     
     private int do_stmt() throws ErroSintaticoException{
         switch(tok.getTag()){
-            case Constantes.DO:   eat(new Token(Constantes.DO));
-                                  eat(new Token('{'));                                  
+            case Constantes.DO:   int indexDOatual = currentLabelIndexDO;
+            					  currentLabelIndexDO++;
+            					  eat(new Token(Constantes.DO));
+                                  eat(new Token('{'));
+                                  printLabel("DO", indexDOatual);
                                   int tipoStmtList = stmt_list();                                  
                                   eat(new Token('}'));
-                                  int tipoDoSufix = do_sulfix();
+                                  int tipoDoSufix = do_sulfix(indexDOatual);
                                   if(tipoDoSufix == Constantes.VAZIO)
                                 	  return tipoStmtList;
                                   else {
@@ -406,11 +426,13 @@ public class AnalisadorSintatico {
 		return 0;
     }
     
-    private int do_sulfix() throws ErroSintaticoException{
+    private int do_sulfix(int indexDOatual) throws ErroSintaticoException{
         switch(tok.getTag()){
             case Constantes.WHILE: eat(new Token(Constantes.WHILE));
                                   eat(new Token('('));
                                   int tipoCondition = condition();
+                                  geradorCodigo.escreverStringEmArquivo("NOT");
+                                  geradorCodigo.escreverStringEmArquivo("JZ DO"+indexDOatual);
                                   eat(new Token(')'));
                                   if(tipoCondition == Constantes.INT)
                                 	  return Constantes.VAZIO;
@@ -532,15 +554,70 @@ public class AnalisadorSintatico {
             case Constantes.LT:
             case Constantes.LE:
             case Constantes.NE:
-            case Constantes.EQ: relop();
+            case Constantes.EQ: int tipoRelop = tok.getTag(); 
+            					relop();
                                 int tipoSimpleExpr = simple_expr();
-                                int tipoExprPrime = expression_prime();
-                                if(tipoSimpleExpr == Constantes.INT && (tipoExprPrime== Constantes.INT || tipoExprPrime== Constantes.VAZIO))
-                                	return Constantes.INT;
-                                else {
-                                	setarLinhaErroSemantico(lexer.linha);
-                                	return Constantes.ERRO;
+                                if(tipoRelop == Constantes.EQ) {
+                                	if(tipoSimpleExpr == Constantes.INT) {
+                                		geradorCodigo.escreverStringEmArquivo("EQUAL");
+                                	}
+                                	else {
+                                		geradorCodigo.escreverStringEmArquivo("EQUAL");
+                                	}
                                 }
+                                else if(tipoRelop == Constantes.NE) {
+                                	if(tipoSimpleExpr == Constantes.INT) {
+                                		geradorCodigo.escreverStringEmArquivo("EQUAL");
+                                		geradorCodigo.escreverStringEmArquivo("NOT");
+                                	}
+                                	else {
+                                		geradorCodigo.escreverStringEmArquivo("EQUAL");
+                                		geradorCodigo.escreverStringEmArquivo("NOT");
+                                	}
+                                }
+                                else if(tipoRelop == Constantes.LE) {
+                                	if(tipoSimpleExpr == Constantes.INT) {
+                                		geradorCodigo.escreverStringEmArquivo("INFEQ");
+                                	}
+                                	else {
+                                		geradorCodigo.escreverStringEmArquivo("FINFEQ");
+                                	}
+                                }
+                                else if(tipoRelop == Constantes.LT) {
+                                	if(tipoSimpleExpr == Constantes.INT) {
+                                		geradorCodigo.escreverStringEmArquivo("INF");
+                                	}
+                                	else {
+                                		geradorCodigo.escreverStringEmArquivo("FINF");
+                                	}
+                                }
+                                else if(tipoRelop == Constantes.GE) {
+                                	if(tipoSimpleExpr == Constantes.INT) {
+                                		geradorCodigo.escreverStringEmArquivo("SUPEQ");
+                                	}
+                                	else {
+                                		geradorCodigo.escreverStringEmArquivo("FSUPEQ");
+                                	}
+                                }
+                                else {
+                                	if(tipoSimpleExpr == Constantes.INT) {
+                                		geradorCodigo.escreverStringEmArquivo("SUP");
+                                	}
+                                	else {
+                                		geradorCodigo.escreverStringEmArquivo("FSUP");
+                                	}
+                                }
+                                int tipoExprPrime = expression_prime();
+                                if(tipoExprPrime == Constantes.VAZIO) {
+                            		return tipoSimpleExpr;
+                            	}
+                            	else if(tipoSimpleExpr == Constantes.INT && tipoExprPrime== Constantes.INT)
+                            		return Constantes.INT;
+                            	else {
+                            		setarLinhaErroSemantico(lexer.linha);
+                            		return Constantes.ERRO;
+                            	}
+                                
             default: return Constantes.VAZIO;
         }
     }
