@@ -6,5 +6,6 @@ class teste6
 		write("Digite o sua idade: ");
 		read(idade);
 		dobro = 2 * idade;
-		write ("O dobro da sua idade é "+ dobro);
+		write ("O dobro da sua idade é ");
+		write(dobro);
 	stop

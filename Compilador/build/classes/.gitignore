@@ -1,1 +1,6 @@
 /compilador/
+/Exception/
+/TabelaDeSimbolos/
+/AnalisadorLexico/
+/Tokens/
+/AnalisadorSintatico/

@@ -1,4 +1,4 @@
-package compilador;
+package Tokens;
 
 public class Token {
 	private final int tag; //constante que representa o token

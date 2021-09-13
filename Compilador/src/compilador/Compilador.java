@@ -5,6 +5,10 @@
  */
 package compilador;
 
+import AnalisadorLexico.AnalisadorLexico;
+import AnalisadorSintatico.AnalisadorSintatico;
+import TabelaDeSimbolos.Ambiente;
+
 /**
  *
  * @author Raphael Assis
@@ -17,7 +21,7 @@ public class Compilador {
     public static void main(String[] args) {
         AnalisadorLexico analisadorLexico = new AnalisadorLexico(args[0]);
         Ambiente tabelaSimbolos = new Ambiente(null);
-        AnalisadorSintatico analisadorSintatico = new AnalisadorSintatico(analisadorLexico);
+        AnalisadorSintatico analisadorSintatico = new AnalisadorSintatico(analisadorLexico, args[0]);
         analisadorSintatico.startAnalysis();        
         System.out.println(">> Compilacao concluida");
     }

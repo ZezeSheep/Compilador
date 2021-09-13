@@ -1,4 +1,6 @@
-package compilador;
+package Tokens;
+
+import compilador.Constantes;
 
 public class ConstanteNumerica<T> extends Token {
 	

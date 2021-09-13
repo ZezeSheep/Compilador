@@ -3,13 +3,20 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compilador;
+package AnalisadorLexico;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Scanner;
+
+import Exception.LiteralBadFormattedException;
+import Exception.NumberBadFormattedException;
+import Tokens.ConstanteNumerica;
+import Tokens.Palavra;
+import Tokens.Token;
+import compilador.Constantes;
 
 /**
  *
@@ -76,8 +83,28 @@ public class AnalisadorLexico {
 
     private ConstanteNumerica lerNumero() throws NumberBadFormattedException {
         if (caracter == '0') {
-            caracter = ' ';
-            return new ConstanteNumerica(0);
+        	lerCaracter();
+        	if(caracter!='.')
+        		return new ConstanteNumerica(0);
+        	else {
+        		double valor = 0;
+        		lerCaracter();
+                if (Character.isDigit(caracter)) {
+                    int expoente = -1;
+                    do {
+                        valor = valor + (caracter - '0') * (Math.pow(10, expoente));
+                        expoente--;
+                        lerCaracter();
+                    } while (Character.isDigit(caracter));
+                    if(!Character.isLetter(caracter))
+                        return new ConstanteNumerica(valor);
+                    else{
+                        throw new NumberBadFormattedException("Numero mal formatado");
+                    }
+                } else {  // um erro de sintaxe do tipo EX: 123.a
+                    throw new NumberBadFormattedException("Numero mal formatado");
+                }
+        	}
         } else {
             double valor = 0;
             do {

@@ -3,7 +3,8 @@ class Teste3
 Programa com if e while aninhados**/
 
 int i;
-int media, soma;
+int soma, qtd, altura;
+float media;
 
 init
 soma = 0;
