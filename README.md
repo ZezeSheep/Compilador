@@ -1,2 +1,2 @@
-# TP_Compiladores
- Compilador desenvolvido para a matéria de compiladores.
+# Compilador
+ Compilador desenvolvido para a matéria de compiladores do curso de engenharia de computação.
